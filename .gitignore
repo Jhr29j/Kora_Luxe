@@ -1,0 +1,12 @@
+# Node modules
+node_modules/
+
+# Electron build artifacts
+dist/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Env files
+.env
