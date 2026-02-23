@@ -55,6 +55,7 @@
       object-fit: cover;
       display: block;
       z-index: 1;
+      background-color: white;
     }
 
     /* Divider between left and right */
@@ -68,8 +69,6 @@
       background: rgba(26,50,99,0.12);
       z-index: 2;
     }
-
-
 
     .right-side {
       flex: 1.1;
