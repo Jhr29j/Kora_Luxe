@@ -14,7 +14,7 @@ print(f"KEY encontrada: {'✅' if os.getenv('SUPABASE_SERVICE_ROLE_KEY') else '�
 
 # Resto de tu código igual
 url = os.getenv("SUPABASE_URL")
-key = os.getenv("SUPABASE_KEY")
+key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 if not url or not key:
     raise Exception("❌ No se encontraron SUPABASE_URL o SUPABASE_KEY en el .env")
