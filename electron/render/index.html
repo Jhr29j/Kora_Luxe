@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kora Luxe - Dashboard Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/electron/render/styles/style.css"/>
+</head>
+<body>
+
+<header>
+  <div class="logo-container">
+    <a href="/electron/render/index.html">
+      <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
+    </a>
+  </div>
+
+  <div class="search-container">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" placeholder="Buscar producto, código o cliente..."/>
+  </div>
+
+  <div class="menu-toggle" id="menuToggle">
+    <i class="fa-solid fa-bars"></i>
+  </div>
+</header>
+
+<!-- Overlay para cerrar el menú al hacer clic fuera -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Menú hamburguesa (overlay) -->
+<div class="sidebar-menu" id="sidebarMenu">
+  <span class="close-btn" id="closeMenu">×</span>
+  <a href="index.html"><i class="fa-solid fa-gem"></i> Inicio</a>
+  <a href="productos-admin.html"><i class="fa-solid fa-gem"></i> Productos</a>
+  <a href="configuracion-admin.html"><i class="fa-solid fa-gear"></i> Configuración</a>
+  <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+</div>
+
+<main class="content">
+  <h1>Bienvenido al Panel de Administración</h1>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <i class="fa-solid fa-coins stat-icon gold"></i>
+      <h3>Ventas Hoy</h3>
+      <div class="stat-value">$48,750</div>
+    </div>
+    <div class="stat-card">
+      <i class="fa-solid fa-boxes-stacked stat-icon" style="color:var(--accent-blue);"></i>
+      <h3>Productos en Stock Bajo</h3>
+      <div class="stat-value">14</div>
+    </div>
+    <div class="stat-card">
+      <i class="fa-solid fa-user-group stat-icon" style="color:#10b981;"></i>
+      <h3>Clientes Nuevos (Mes)</h3>
+      <div class="stat-value">87</div>
+    </div>
+    <div class="stat-card">
+      <i class="fa-solid fa-dollar-sign stat-icon gold"></i>
+      <h3>Ingresos Mes</h3>
+      <div class="stat-value">$312,400</div>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <h2>Acciones Rápidas</h2>
+    <div class="action-buttons">
+      <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nueva Venta</button>
+      <button class="btn btn-gold"><i class="fa-solid fa-gem"></i> Agregar Producto</button>
+      <button class="btn btn-success"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</button>
+      <button class="btn btn-danger"><i class="fa-solid fa-file-invoice"></i> Ver Reporte Diario</button>
+    </div>
+  </div>
+
+  <div class="recent-products">
+    <h2>Últimos Productos Modificados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Última actualización</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Anillo compromiso zirconia</td><td>Anillos</td><td>$2,800</td><td>6</td><td>Hoy 14:30</td></tr>
+        <tr><td>Collar nombre personalizado</td><td>Collares</td><td>$2,500</td><td>5</td><td>Ayer</td></tr>
+        <tr><td>Reloj metálico dorado</td><td>Relojes</td><td>$5,200</td><td>4</td><td>2 días</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script src="/electron/script.js"></script>
+</body>
+</html>

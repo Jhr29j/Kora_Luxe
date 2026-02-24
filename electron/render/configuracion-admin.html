@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kora Luxe - Configuración</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/electron/render/styles/configuracion-admin.css">
+</head>
+<body>
+
+<header>
+  <div class="logo-container">
+    <a href="/electron/render/index.html">
+      <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
+    </a>
+  </div>
+
+  <div class="search-container">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" placeholder="Buscar producto, código o cliente..."/>
+  </div>
+
+  <div class="menu-toggle" id="menuToggle">
+    <i class="fa-solid fa-bars"></i>
+  </div>
+</header>
+
+<!-- Overlay para cerrar menú al clic fuera -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Menú hamburguesa -->
+<div class="sidebar-menu" id="sidebarMenu">
+  <span class="close-btn" id="closeMenu">×</span>
+  <a href="index.html"><i class="fa-solid fa-gem"></i> Inicio</a>
+  <a href="productos-admin.html"><i class="fa-solid fa-gem"></i> Productos</a>
+  <a href="configuracion.html" class="active"><i class="fa-solid fa-gear"></i> Configuración</a>
+  <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+</div>
+
+<main class="content">
+  <h1>Configuración</h1>
+
+  <div class="settings-container">
+
+    <!-- Datos de usuario -->
+    <div class="group">
+      <h2>Datos de usuario</h2>
+      <div class="field">
+        <label>Email registrado:</label>
+        <input type="email" value="diany.saony@koraluxe.do" readonly>
+      </div>
+    </div>
+
+    <!-- Método de pago preferido -->
+    <div class="group">
+      <h2>Método de pago preferido</h2>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="payment" id="efectivo" checked>
+          <span>Efectivo</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="payment" id="tarjeta">
+          <span>Tarjeta</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Tema de la aplicación -->
+    <div class="group">
+      <h2>Tema de la aplicación</h2>
+      <div class="theme-buttons">
+        <button class="theme-btn light" data-theme="light">Tema Blanco</button>
+        <button class="theme-btn dark" data-theme="dark">Tema Oscuro</button>
+      </div>
+    </div>
+
+    <!-- Botón cerrar sesión -->
+    <button class="btn-logout">
+      <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+    </button>
+
+    <!-- Botones Aceptar / Cancelar -->
+    <div class="action-buttons">
+      <button class="btn btn-accept">Aceptar</button>
+      <button class="btn btn-cancel">Cancelar</button>
+    </div>
+
+  </div>
+</main>
+
+<script src="/electron/configuracion-admin.js"></script>
+</body>
+</html>
