@@ -18,18 +18,25 @@ menuToggle.addEventListener('click', openMenu);
 closeMenuBtn.addEventListener('click', closeMenu);
 sidebarOverlay.addEventListener('click', closeMenu);
 
-// Cerrar con tecla Escape
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeMenu();
-  }
-});
+// Cambio de tema simple
+const themeButtons = document.querySelectorAll('.theme-btn');
+const html = document.documentElement;
 
-// Opcional: cambiar tema al hacer clic en los botones (solo visual por ahora)
-document.querySelectorAll('.theme-btn').forEach(btn => {
+themeButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const theme = btn.dataset.theme;
-    alert(`Tema seleccionado: ${theme === 'light' ? 'Claro' : 'Oscuro'}`);
-    // Aquí podrías implementar el cambio real con document.documentElement.setAttribute('data-theme', theme);
+    html.setAttribute('data-theme', theme);
+    themeButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    localStorage.setItem('theme', theme);
   });
+});
+
+const savedTheme = localStorage.getItem('theme') || 'light';
+html.setAttribute('data-theme', savedTheme);
+document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`)?.classList.add('active');
+
+// Cerrar con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeMenu();
 });

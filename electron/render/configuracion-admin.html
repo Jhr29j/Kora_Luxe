@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kora Luxe - Configuración</title>
+  <title>Kora Luxe • Configuración (Admin)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  
-  <link rel="stylesheet" href="/electron/render/styles/configuracion-admin.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/electron/render/styles/configuracion-admin.css"/>
 </head>
 <body>
 
 <header>
   <div class="logo-container">
-    <a href="/electron/render/index.html">
+    <a href="index.html">
       <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
     </a>
   </div>
@@ -28,7 +27,7 @@
   </div>
 </header>
 
-<!-- Overlay para cerrar menú al clic fuera -->
+<!-- Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- Menú hamburguesa -->
@@ -36,62 +35,174 @@
   <span class="close-btn" id="closeMenu">×</span>
   <a href="index.html"><i class="fa-solid fa-gem"></i> Inicio</a>
   <a href="productos-admin.html"><i class="fa-solid fa-gem"></i> Productos</a>
-  <a href="configuracion.html" class="active"><i class="fa-solid fa-gear"></i> Configuración</a>
+  <a href="usuarios.html"><i class="fa-solid fa-users"></i> Usuarios</a>
+  <a href="configuracion-admin.html" class="active"><i class="fa-solid fa-gear"></i> Configuración</a>
   <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
 </div>
 
 <main class="content">
-  <h1>Configuración</h1>
+  <h1>Configuración del Sistema</h1>
 
   <div class="settings-container">
 
-    <!-- Datos de usuario -->
-    <div class="group">
-      <h2>Datos de usuario</h2>
+    <!-- Datos de la empresa -->
+    <div class="section">
+      <h2><i class="fa-solid fa-building"></i> Datos de la Empresa</h2>
       <div class="field">
-        <label>Email registrado:</label>
-        <input type="email" value="diany.saony@koraluxe.do" readonly>
+        <label>Nombre comercial</label>
+        <input type="text" value="Kora Luxe Joyería" required>
+      </div>
+      <div class="field">
+        <label>RNC</label>
+        <input type="text" value="131-45678-9" required>
+      </div>
+      <div class="field">
+        <label>Teléfono principal</label>
+        <input type="tel" value="809-555-0000">
+      </div>
+      <div class="field">
+        <label>Dirección</label>
+        <input type="text" value="Av. Independencia #45, Santo Domingo Oeste">
+      </div>
+      <div class="field">
+        <label>Email de contacto</label>
+        <input type="email" value="info@koraluxe.do">
       </div>
     </div>
 
-    <!-- Método de pago preferido -->
-    <div class="group">
-      <h2>Método de pago preferido</h2>
-      <div class="radio-group">
-        <label class="radio-option">
-          <input type="radio" name="payment" id="efectivo" checked>
+    <!-- Sucursales -->
+    <div class="section">
+      <h2><i class="fa-solid fa-store"></i> Sucursales</h2>
+      <div style="margin-bottom: 1.5rem;">
+        <button class="btn btn-add" style="background:var(--success); color:white;">
+          <i class="fa-solid fa-plus"></i> Agregar Sucursal
+        </button>
+      </div>
+      <ul style="list-style:none; display:grid; gap:1rem;">
+        <li style="padding:1rem; background:#f8fafc; border:1px solid var(--border); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>Sucursal Principal</strong><br>
+            <small>Av. Independencia #45 • Activa</small>
+          </div>
+          <div>
+            <button class="action-btn" style="background:var(--accent); color:white;">Editar</button>
+            <button class="action-btn" style="background:var(--danger); color:white; margin-left:8px;">Desactivar</button>
+          </div>
+        </li>
+        <li style="padding:1rem; background:#f8fafc; border:1px solid var(--border); border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>Sucursal Santiago</strong><br>
+            <small>Calle del Sol #120 • Activa</small>
+          </div>
+          <div>
+            <button class="action-btn" style="background:var(--accent); color:white;">Editar</button>
+            <button class="action-btn" style="background:var(--danger); color:white; margin-left:8px;">Desactivar</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Facturación -->
+    <div class="section">
+      <h2><i class="fa-solid fa-file-invoice"></i> Facturación</h2>
+      <div class="field">
+        <label>Prefijo de factura (NCF)</label>
+        <input type="text" value="B01" maxlength="3">
+      </div>
+      <div class="field">
+        <label>Número inicial siguiente</label>
+        <input type="number" value="10001">
+      </div>
+      <div class="field">
+        <label>Imprimir factura automáticamente</label>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Impuestos y descuentos -->
+    <div class="section">
+      <h2><i class="fa-solid fa-percentage"></i> Impuestos y Descuentos</h2>
+      <div class="field">
+        <label>Porcentaje IVA (%)</label>
+        <input type="number" step="0.01" value="18.00">
+      </div>
+      <div class="field">
+        <label>Descuento máximo permitido (%)</label>
+        <input type="number" step="0.01" value="30.00">
+      </div>
+    </div>
+
+    <!-- Métodos de pago -->
+    <div class="section">
+      <h2><i class="fa-solid fa-credit-card"></i> Métodos de Pago Disponibles</h2>
+      <div class="checkbox-group">
+        <label class="option">
+          <input type="checkbox" checked>
           <span>Efectivo</span>
         </label>
-        <label class="radio-option">
-          <input type="radio" name="payment" id="tarjeta">
-          <span>Tarjeta</span>
+        <label class="option">
+          <input type="checkbox" checked>
+          <span>Tarjeta de Crédito/Débito</span>
+        </label>
+        <label class="option">
+          <input type="checkbox">
+          <span>Transferencia Bancaria</span>
+        </label>
+        <label class="option">
+          <input type="checkbox" checked>
+          <span>WhatsApp Pay</span>
         </label>
       </div>
     </div>
 
-    <!-- Tema de la aplicación -->
-    <div class="group">
-      <h2>Tema de la aplicación</h2>
-      <div class="theme-buttons">
-        <button class="theme-btn light" data-theme="light">Tema Blanco</button>
-        <button class="theme-btn dark" data-theme="dark">Tema Oscuro</button>
+    <!-- Inventario -->
+    <div class="section">
+      <h2><i class="fa-solid fa-boxes-stacked"></i> Alertas de Inventario</h2>
+      <div class="field">
+        <label>Stock mínimo para alerta</label>
+        <input type="number" value="5">
+      </div>
+      <div class="field">
+        <label>Enviar notificación por email cuando stock bajo</label>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="slider"></span>
+        </label>
       </div>
     </div>
 
-    <!-- Botón cerrar sesión -->
-    <button class="btn-logout">
-      <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
-    </button>
+    <!-- Tema -->
+    <div class="section">
+      <h2><i class="fa-solid fa-palette"></i> Tema de la Aplicación</h2>
+      <div class="theme-buttons">
+        <button class="theme-btn light active" data-theme="light">
+          <i class="fa-solid fa-sun"></i> Claro
+        </button>
+        <button class="theme-btn dark" data-theme="dark">
+          <i class="fa-solid fa-moon"></i> Oscuro
+        </button>
+      </div>
+    </div>
 
-    <!-- Botones Aceptar / Cancelar -->
+    <!-- Botón cerrar sesión pequeño y centrado -->
+    <div style="display:flex; justify-content:center; margin:3rem 0;">
+      <button class="btn-logout" style="padding:12px 28px; font-size:1rem; max-width:240px;">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+      </button>
+    </div>
+
+    <!-- Botones finales -->
     <div class="action-buttons">
-      <button class="btn btn-accept">Aceptar</button>
+      <button class="btn btn-save">Guardar Todos los Cambios</button>
       <button class="btn btn-cancel">Cancelar</button>
     </div>
 
   </div>
 </main>
 
-<script src="/electron/configuracion-admin.js"></script>
+<script src="configuracion-admin.js"></script>
 </body>
 </html>
