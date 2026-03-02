@@ -1,0 +1,23 @@
+{
+  "name": "kora_uxe",
+  "version": "1.0.0",
+  "main": "main.js",
+"scripts": {
+  "start": "electron ."
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jhr29j/Kora_Luxe.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jhr29j/Kora_Luxe/issues"
+  },
+  "homepage": "https://github.com/Jhr29j/Kora_Luxe#readme",
+  "description": "",
+  "devDependencies": {
+    "electron": "^40.6.0"
+  }
+}

@@ -1,0 +1,18 @@
+# Node modules
+node_modules/
+package-lock.json
+.package-lock.json
+
+# Electron build artifacts
+dist/
+node_modules/electron/dist/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Env files
+.env
+
+# VSCode
+.vscode/
