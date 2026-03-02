@@ -12,7 +12,7 @@
 
 <header>
   <div class="logo-container">
-    <a href="dashboard-empleado.html">
+    <a href="/electron/render/dashboard.html">
       <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
     </a>
   </div>
@@ -36,9 +36,9 @@
   <a href="dashboard-empleado.html"><i class="fa-solid fa-house"></i> Inicio</a>
   <a href="ventas.html" class="active"><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a>
   <a href="productos-empleado.html"><i class="fa-solid fa-gem"></i> Productos</a>
-  <a href="#"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</a>
+  <a href="registrar-cliente.html"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</a>
   <a href="configuracion-empleado.html"><i class="fa-solid fa-gear"></i> Mi Configuración</a>
-  <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+  <a href="login.html"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
 </div>
 
 <main class="content">
@@ -47,59 +47,59 @@
   <div class="sales-layout">
 
     <!-- Lado izquierdo: búsqueda y lista de productos -->
-    <div class="products-search-section">
-      <div class="search-bar">
-        <input type="text" placeholder="Buscar por nombre, código o categoría..."/>
-        <button><i class="fa-solid fa-search"></i> Buscar</button>
+    <div class="products-section">
+      <div class="search-bar-main">
+        <input type="text" id="searchProduct" placeholder="Buscar por nombre, código o categoría..."/>
+        <i class="fa-solid fa-search"></i>
       </div>
 
-      <div class="product-list">
-        <div class="product-item">
-          <div>Anillo compromiso zirconia</div>
-          <div>$2,800.00</div>
-        </div>
-        <div class="product-item">
-          <div>Collar infinito</div>
-          <div>$1,500.00</div>
-        </div>
-        <div class="product-item">
-          <div>Pulsera charms</div>
-          <div>$2,000.00</div>
-        </div>
-        <div class="product-item">
-          <div>Aretes aro grandes</div>
-          <div>$950.00</div>
-        </div>
-        <!-- Puedes agregar más productos dinámicamente aquí -->
+      <div class="product-list" id="productList">
+        <!-- Productos se cargan dinámicamente -->
       </div>
     </div>
 
     <!-- Lado derecho: carrito y pago -->
     <div class="cart-section">
-      <div class="cart-header">Carrito actual</div>
-
-      <div class="cart-items">
-        <div class="cart-item">
-          <div>Anillo compromiso zirconia</div>
-          <div>$2,800.00</div>
-        </div>
-        <div class="cart-item">
-          <div>Collar infinito</div>
-          <div>$1,500.00</div>
-        </div>
-        <!-- Items dinámicos aquí -->
+      <div class="cart-header">
+        <span>Carrito actual</span>
+        <span id="cartCount">0 artículos</span>
       </div>
 
-      <div class="cart-total">
-        Total: $4,300.00
+      <div class="cart-items" id="cartItems">
+        <!-- Items se agregan dinámicamente -->
+      </div>
+
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotal">$0.00</span>
+        </div>
+        <div class="summary-row">
+          <span>Descuento</span>
+          <span id="discount">$0.00</span>
+        </div>
+        <div class="summary-row">
+          <span>IVA (18%)</span>
+          <span id="iva">$0.00</span>
+        </div>
+        <div class="summary-total">
+          <span>Total</span>
+          <span id="total">$0.00</span>
+        </div>
+        <div class="summary-row" style="margin-top: 1rem; font-weight: 600;">
+          <span>Método de pago</span>
+          <span id="selectedPayment">Ninguno seleccionado</span>
+        </div>
       </div>
 
       <div class="payment-methods">
-        <button class="payment-btn active">Efectivo</button>
-        <button class="payment-btn">Tarjeta</button>
+        <button class="payment-btn" data-method="Efectivo">Efectivo</button>
+        <button class="payment-btn" data-method="Tarjeta">Tarjeta</button>
+        <button class="payment-btn" data-method="Transferencia">Transferencia</button>
+        <button class="payment-btn" data-method="WhatsApp Pay">WhatsApp Pay</button>
       </div>
 
-      <button class="btn-finish">
+      <button class="btn-finish" id="finishSale">
         <i class="fa-solid fa-check-circle"></i> Cerrar Venta
       </button>
     </div>

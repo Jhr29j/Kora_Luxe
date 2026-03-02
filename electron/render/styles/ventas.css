@@ -1,4 +1,4 @@
-:root {
+    :root {
       --dark-blue:   #1A3263;
       --accent-blue: #2196F3;
       --light-gray:  #D9D9D9;
@@ -162,40 +162,101 @@
     h1 {
       color: var(--dark-blue);
       font-size: 2rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.8rem;
       text-align: center;
     }
 
     .sales-layout {
       display: grid;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: 1fr 400px;
       gap: 2rem;
     }
 
-    .products-search-section {
+    .products-section {
       background: var(--card);
       border-radius: 12px;
-      padding: 1.5rem;
+      padding: 1.8rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
 
-    .search-bar {
-      display: flex;
-      gap: 1rem;
+    .search-bar-main {
+      position: relative;
       margin-bottom: 1.5rem;
     }
 
-    .search-bar input {
-      flex: 1;
-      padding: 12px 16px;
+    .search-bar-main input {
+      width: 100%;
+      padding: 14px 20px 14px 50px;
       border: 2px solid var(--border);
-      border-radius: 8px;
-      font-size: 1rem;
+      border-radius: 50px;
+      font-size: 1.05rem;
     }
 
-    .search-bar button {
-      padding: 0 1.5rem;
-      background: var(--accent-blue);
+    .search-bar-main i {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.3rem;
+    }
+
+    .product-list {
+      max-height: 600px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .product-card {
+      background: #f8fafc;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      transition: all 0.3s;
+      border: 1px solid var(--border);
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+      border-color: var(--accent-blue);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(135deg, #e5e7eb, #f3f4f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: #9ca3af;
+    }
+
+    .product-info {
+      padding: 1.2rem;
+    }
+
+    .product-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--dark-blue);
+    }
+
+    .product-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .product-add {
+      margin-top: 0.8rem;
+      width: 100%;
+      padding: 10px;
+      background: var(--success);
       color: white;
       border: none;
       border-radius: 8px;
@@ -203,43 +264,22 @@
       font-weight: 600;
     }
 
-    .product-list {
-      max-height: 500px;
-      overflow-y: auto;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-
-    .product-item {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .product-item:hover {
-      background: var(--light-gray);
-    }
-
-    .product-item:last-child {
-      border-bottom: none;
-    }
-
     .cart-section {
       background: var(--card);
       border-radius: 12px;
-      padding: 1.5rem;
+      padding: 1.8rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
     }
 
     .cart-header {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       color: var(--dark-blue);
       margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .cart-items {
@@ -252,54 +292,104 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.8rem 0;
+      padding: 1rem 0;
       border-bottom: 1px solid var(--border);
     }
 
-    .cart-item:last-child {
-      border-bottom: none;
+    .cart-item-info {
+      flex: 1;
     }
 
-    .cart-total {
+    .cart-item-name {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .cart-item-price {
+      color: var(--text-muted);
+    }
+
+    .cart-item-qty {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--light-gray);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+
+    .cart-item-total {
+      font-weight: 600;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .cart-summary {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      font-size: 1.05rem;
+    }
+
+    .summary-total {
       font-size: 1.4rem;
       font-weight: 700;
       color: var(--dark-blue);
-      text-align: right;
-      margin: 1.5rem 0;
+      margin-top: 1rem;
     }
 
     .payment-methods {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin: 1.5rem 0;
     }
 
     .payment-btn {
-      flex: 1;
+      flex: 1 1 45%;
       padding: 12px;
       border: 2px solid var(--border);
       border-radius: 8px;
       background: white;
       cursor: pointer;
       font-weight: 600;
+      text-align: center;
+      transition: all 0.2s;
     }
 
     .payment-btn.active {
       border-color: var(--accent-blue);
-      background: var(--selected);
-      color: var(--dark-blue);
+      background: var(--accent-blue);
+      color: white;
     }
 
     .btn-finish {
       width: 100%;
-      padding: 16px;
+      padding: 18px;
       background: var(--success);
       color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 1.15rem;
-      font-weight: 600;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     .btn-finish:hover {
