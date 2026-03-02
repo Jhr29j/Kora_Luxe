@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kora Luxe • Empleado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/electron/render/styles/dashboard.css"/>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="logo-container">
+      <i class="fa-solid fa-gem logo-diamond"></i>
+      <span class="logo-text">KORA LUXE</span>
+    </div>
+
+    <div class="search-container">
+      <span class="search-icon"></span>
+      <input type="text" placeholder="Busca aquí...">
+    </div>
+
+    <div class="menu-toggle" id="menuToggle">
+      <i class="fa-solid fa-bars"></i>
+    </div>
+  </header>
+
+  <!-- Overlay menú -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="sidebar-menu" id="sidebarMenu">
+    <span class="close-btn" id="closeMenu">×</span>
+    <a href="#" class="active"><i class="fa-solid fa-house"></i> Inicio</a>
+    <a href="ventas.html"><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a>
+    <a href="productos.html"><i class="fa-solid fa-gem"></i> Productos</a>
+    <a href="configuracion.html"><i class="fa-solid fa-gear"></i> Mi Configuración</a>
+    <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+  </div>
+
+  <div class="main-layout">
+    <main class="content">
+
+      <!-- Tabla izquierda (Productos) -->
+      <div class="products-panel">
+        <div class="panel-header">
+          <span>Productos</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th>PvD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>896552</td>
+              <td>Conjunto</td>
+              <td class="price">$80,000.00</td>
+            </tr>
+            <tr>
+              <td>896552</td>
+              <td>Collar</td>
+              <td class="price">$40,000.00</td>
+            </tr>
+            <tr class="selected">
+              <td>896552</td>
+              <td>Anillo</td>
+              <td class="price">$2,500.00</td>
+            </tr>
+            <tr>
+              <td>896552</td>
+              <td>Pulsera</td>
+              <td class="price">$1,500.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Panel derecho (Kardex) -->
+      <div class="kardex-panel">
+        <div class="panel-header">
+          <span>Kardex</span>
+        </div>
+
+        <div class="kardex-content">
+          <div class="kardex-image">
+            <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&auto=format&fit=crop&q=80" alt="Anillo diamante">
+          </div>
+
+          <div class="kardex-info">
+            <h3>Anillo</h3>
+            <ul>
+              <li><strong>Teléfono:</strong> 098883450233</li>
+              <li><strong>Modelo:</strong> B237CD</li>
+              <li><strong>Diamantes:</strong> 15 Pts corte Brillante</li>
+              <li><strong>Material:</strong> Oro Blanco</li>
+              <li><strong>Kilataje:</strong> 14k</li>
+            </ul>
+          </div>
+
+          <div class="price-big">$2,500.00</div>
+
+          <div class="stock-info">
+            Existencia Global <strong>47 Pzas</strong>
+          </div>
+
+          <div class="discount-info">
+            Descuento actual: $0.00
+          </div>
+
+          <button class="btn-ver">Ver</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/electron/dashboard.js"></script>
+
+</body>
+</html>

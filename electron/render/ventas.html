@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kora Luxe • Nueva Venta</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/electron/render/styles/ventas.css"/>
+</head>
+<body>
+
+<header>
+  <div class="logo-container">
+    <a href="dashboard-empleado.html">
+      <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
+    </a>
+  </div>
+
+  <div class="search-container">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" placeholder="Buscar producto, código o cliente..."/>
+  </div>
+
+  <div class="menu-toggle" id="menuToggle">
+    <i class="fa-solid fa-bars"></i>
+  </div>
+</header>
+
+<!-- Overlay para cerrar menú al clic fuera -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Menú hamburguesa -->
+<div class="sidebar-menu" id="sidebarMenu">
+  <span class="close-btn" id="closeMenu">×</span>
+  <a href="dashboard-empleado.html"><i class="fa-solid fa-house"></i> Inicio</a>
+  <a href="ventas.html" class="active"><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a>
+  <a href="productos-empleado.html"><i class="fa-solid fa-gem"></i> Productos</a>
+  <a href="#"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</a>
+  <a href="configuracion-empleado.html"><i class="fa-solid fa-gear"></i> Mi Configuración</a>
+  <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+</div>
+
+<main class="content">
+  <h1>Nueva Venta</h1>
+
+  <div class="sales-layout">
+
+    <!-- Lado izquierdo: búsqueda y lista de productos -->
+    <div class="products-search-section">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar por nombre, código o categoría..."/>
+        <button><i class="fa-solid fa-search"></i> Buscar</button>
+      </div>
+
+      <div class="product-list">
+        <div class="product-item">
+          <div>Anillo compromiso zirconia</div>
+          <div>$2,800.00</div>
+        </div>
+        <div class="product-item">
+          <div>Collar infinito</div>
+          <div>$1,500.00</div>
+        </div>
+        <div class="product-item">
+          <div>Pulsera charms</div>
+          <div>$2,000.00</div>
+        </div>
+        <div class="product-item">
+          <div>Aretes aro grandes</div>
+          <div>$950.00</div>
+        </div>
+        <!-- Puedes agregar más productos dinámicamente aquí -->
+      </div>
+    </div>
+
+    <!-- Lado derecho: carrito y pago -->
+    <div class="cart-section">
+      <div class="cart-header">Carrito actual</div>
+
+      <div class="cart-items">
+        <div class="cart-item">
+          <div>Anillo compromiso zirconia</div>
+          <div>$2,800.00</div>
+        </div>
+        <div class="cart-item">
+          <div>Collar infinito</div>
+          <div>$1,500.00</div>
+        </div>
+        <!-- Items dinámicos aquí -->
+      </div>
+
+      <div class="cart-total">
+        Total: $4,300.00
+      </div>
+
+      <div class="payment-methods">
+        <button class="payment-btn active">Efectivo</button>
+        <button class="payment-btn">Tarjeta</button>
+      </div>
+
+      <button class="btn-finish">
+        <i class="fa-solid fa-check-circle"></i> Cerrar Venta
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<script src="/electron/ventas.js"></script>
+
+</body>
+</html>

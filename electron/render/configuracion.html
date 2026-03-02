@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kora Luxe • Mi Configuración</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/electron/render/styles/configuracion.css"/>
+</head>
+<body>
+
+<header>
+  <div class="logo-container">
+    <a href="dashboard-empleado.html">
+      <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
+    </a>
+  </div>
+
+  <div class="search-container">
+    <span class="search-icon">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="9" cy="9" r="7"/>
+        <line x1="15" y1="15" x2="19" y2="19"/>
+      </svg>
+    </span>
+    <input type="text" placeholder="Buscar producto, código o cliente..."/>
+  </div>
+
+  <div class="menu-toggle" id="menuToggle">
+    <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="4" y1="7" x2="18" y2="7"/>
+      <line x1="4" y1="11" x2="18" y2="11"/>
+      <line x1="4" y1="15" x2="18" y2="15"/>
+    </svg>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar-menu" id="sidebarMenu">
+  <span class="close-btn" id="closeMenu">×</span>
+  <a href="dashboard-empleado.html"><i class="fa-solid fa-house"></i> Inicio</a>
+  <a href="#"><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a>
+  <a href="#"><i class="fa-solid fa-gem"></i> Productos</a>
+  <a href="#"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</a>
+  <a href="configuracion-empleado.html" class="active"><i class="fa-solid fa-gear"></i> Mi Configuración</a>
+  <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+</div>
+
+<main class="content">
+  <h1>Mi Configuración</h1>
+
+  <div class="settings-container">
+
+    <div class="group">
+      <h2>Mis datos</h2>
+      <div class="field">
+        <label>Email registrado:</label>
+        <input type="email" value="diany.saony@koraluxe.do" readonly>
+      </div>
+      <p class="note">Como empleado, no puedes modificar tu email. Contacta al administrador si necesitas cambios.</p>
+    </div>
+
+    <div class="group">
+      <h2>Método de pago preferido en caja</h2>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="payment" id="efectivo" checked>
+          <span>Efectivo</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="payment" id="tarjeta">
+          <span>Tarjeta</span>
+        </label>
+      </div>
+      <p class="note">Esta preferencia solo afecta la interfaz al registrar ventas rápidas.</p>
+    </div>
+
+    <div class="group">
+      <h2>Tema de la interfaz</h2>
+      <div class="theme-buttons">
+        <button class="theme-btn light active" data-theme="light">
+          <i class="fa-solid fa-sun"></i> Claro
+        </button>
+        <button class="theme-btn dark" data-theme="dark">
+          <i class="fa-solid fa-moon"></i> Oscuro
+        </button>
+      </div>
+    </div>
+
+    <!-- Botón cerrar sesión: más pequeño y centrado -->
+    <div class="logout-container">
+      <button class="btn-logout">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+      </button>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-accept">Guardar Cambios</button>
+      <button class="btn btn-cancel">Cancelar</button>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// Menú hamburguesa
+const menuToggle = document.getElementById('menuToggle');
+const sidebarMenu = document.getElementById('sidebarMenu');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const closeMenuBtn = document.getElementById('closeMenu');
+
+function openMenu() {
+  sidebarMenu.classList.add('active');
+  sidebarOverlay.classList.add('active');
+}
+
+function closeMenu() {
+  sidebarMenu.classList.remove('active');
+  sidebarOverlay.classList.remove('active');
+}
+
+menuToggle.addEventListener('click', openMenu);
+closeMenuBtn.addEventListener('click', closeMenu);
+sidebarOverlay.addEventListener('click', closeMenu);
+
+// Cerrar con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeMenu();
+});
+
+// Cambio de tema
+const themeButtons = document.querySelectorAll('.theme-btn');
+const html = document.documentElement;
+
+themeButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const theme = btn.dataset.theme;
+    html.setAttribute('data-theme', theme);
+    themeButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    localStorage.setItem('theme', theme);
+  });
+});
+
+const savedTheme = localStorage.getItem('theme') || 'light';
+html.setAttribute('data-theme', savedTheme);
+document.querySelector(`.theme-btn[data-theme="${savedTheme}"]`)?.classList.add('active');
+</script>
+
+</body>
+</html>
