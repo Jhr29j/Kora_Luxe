@@ -1,8 +1,17 @@
 # Node modules
 node_modules/
+<<<<<<< HEAD
 
 # Electron build artifacts
 dist/
+=======
+package-lock.json
+.package-lock.json
+
+# Electron build artifacts
+dist/
+node_modules/electron/dist/
+>>>>>>> 3f3d42f84cf18dc72522077c91695dc2b1e8aa56
 
 # Python bytecode
 __pycache__/
@@ -10,3 +19,9 @@ __pycache__/
 
 # Env files
 .env
+<<<<<<< HEAD
+=======
+
+# VSCode
+.vscode/
+>>>>>>> 3f3d42f84cf18dc72522077c91695dc2b1e8aa56
