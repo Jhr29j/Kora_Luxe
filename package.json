@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "main.js",
 "scripts": {
-  "start": "electron ."
+  "start": "electron .",
+  "backend": "cd Backend && uvicorn app:app --reload --port 5000"
 },
   "repository": {
     "type": "git",

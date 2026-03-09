@@ -1,173 +1,164 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kora Luxe • Empleado</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/dashboard.css"/>
-</head>
-<body>
-
-<header>
-  <div class="logo-container">
-    <a href="./dashboard.html">
-      <img src="./img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
-    </a>
-  </div>
-
-  <div class="search-container">
-    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-    <input type="text" placeholder="Buscar producto, código o cliente..."/>
-  </div>
-
-  
-  <div class="user-profile" style="margin-right: 15px; display: flex; align-items: center; gap: 8px; font-weight: 500;">
-    <i class="fa-solid fa-circle-user" style="font-size: 1.2rem; color: #d4af37;"></i>
-    <span id="loggedUserName">Usuario</span>
-  </div>
-  <div class="menu-toggle" id="menuToggle">
-    <i class="fa-solid fa-bars"></i>
-  </div>
-</header>
-
-<!-- Overlay para cerrar menú al clic fuera -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<!-- Menú hamburguesa (solo opciones permitidas para empleado) -->
-<div class="sidebar-menu" id="sidebarMenu">
-  <span class="close-btn" id="closeMenu">×</span>
-  <a href="dashboard-empleado.html" class="active"><i class="fa-solid fa-house"></i> Inicio</a>
-  <a href="ventas.html"><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a>
-  <a href="productos-empleado.html"><i class="fa-solid fa-gem"></i> Productos</a>
-  <a href="registrar-cliente.html"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</a>
-  <a href="configuracion-empleado.html"><i class="fa-solid fa-gear"></i> Mi Configuración</a>
-  <a href="login.html"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
-</div>
-
-<main class="content">
-
-  <div class="welcome-row">
-    <h1>Bienvenido, Diany</h1>
-    <p class="date">Hoy, 2 de marzo 2026</p>
-  </div>
-
-  <!-- Estadísticas rápidas (solo lo relevante para empleado) -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <span class="stat-label">Ventas Hoy</span>
-      <span class="stat-value">$12,450</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-label">Mis Ventas Mes</span>
-      <span class="stat-value">$87,200</span>
-    </div>
-    <div class="stat-card warning">
-      <span class="stat-label">Stock Bajo (visible)</span>
-      <span class="stat-value">9</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-label">Clientes Atendidos Hoy</span>
-      <span class="stat-value">14</span>
-    </div>
-  </div>
-
-  <!-- Acciones rápidas (solo permitidas para empleado) -->
-  <div class="quick-actions">
-    <h2>Acciones Rápidas</h2>
-    <div class="action-buttons">
-      <a href="ventas.html"><button class="btn btn-primary"><i class="fa-solid fa-cart-plus"></i> Nueva Venta</button></a>
-      <a href="registrar-cliente.html"><button class="btn btn-success"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</button></a>
-    </div>
-  </div>
-
-  <!-- Producto destacado (oferta del día) -->
-  <div class="featured-product-section">
-    <h2> Oferta del Día</h2>
-    <div class="product-spotlight">
-      <div class="product-image">
-        <div class="ring-placeholder">💍</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kora Luxe • Empleado</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/dashboard.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo-container">
+        <a href="./dashboard.html">
+          <img
+            src="./img/Logo Kora Luxe.png"
+            alt="Kora Luxe logo"
+            class="header-logo"
+          />
+        </a>
       </div>
-      <div class="product-details">
-        <span class="badge">OFERTA DEL DÍA</span>
-        <h3>Anillo Oro Blanco 14k</h3>
-        <p class="description">15 Pts de Diamante corte Brillante · MODELO: B237CD</p>
-        <div class="prices">
-          <span class="current-price">$2,500</span>
-          <span class="old-price">$3,000</span>
-          <span class="discount">-17%</span>
+      <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" placeholder="Buscar producto, código o cliente..." />
+      </div>
+      <div
+        class="user-profile"
+        style="
+          margin-right: 15px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+        "
+      >
+        <i
+          class="fa-solid fa-circle-user"
+          style="font-size: 1.2rem; color: #d4af37"
+        ></i>
+        <span id="loggedUserName">Usuario</span>
+      </div>
+      <div class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+    </header>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-menu" id="sidebarMenu">
+      <span class="close-btn" id="closeMenu">×</span>
+      <a href="dashboard.html" class="active"
+        ><i class="fa-solid fa-house"></i> Inicio</a
+      >
+      <a href="ventas.html"
+        ><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a
+      >
+      <a href="productos.html"><i class="fa-solid fa-gem"></i> Productos</a>
+      <a href="configuracion-empleado.html"
+        ><i class="fa-solid fa-gear"></i> Mi Configuración</a
+      >
+      <a href="login.html"
+        ><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a
+      >
+    </div>
+
+    <main class="content">
+      <div class="welcome-row">
+        <h1>Bienvenido</h1>
+        <p class="date">Cargando fecha...</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Ventas Hoy</span>
+          <span class="stat-value" id="statsSalesToday">RD$ ...</span>
         </div>
-        <div class="meta-info">
-          <span>Código: 896552</span>
-          <span>Existencia: <strong>47 pzas</strong></span>
+        <div class="stat-card">
+          <span class="stat-label">Mis Ventas Mes</span>
+          <span class="stat-value" id="statsSalesMonth">RD$ ...</span>
         </div>
-        <div class="product-actions">
-          <a href="ventas.html"><button class="btn btn-primary btn-small"><i class="fa-solid fa-cart-plus"></i> Vender Ahora</button></a>
-          <a href="productos.html"><button class="btn btn-outline btn-small"><i class="fa-solid fa-list"></i> Ver Kardex</button></a>
+        <div class="stat-card warning">
+          <span class="stat-label">Stock Bajo</span>
+          <span class="stat-value" id="statsLowStock">...</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Mis ventas de hoy -->
-  <div class="recent-products">
-    <h2>Mis ventas de hoy</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Hora</th>
-          <th>Cliente</th>
-          <th>Producto</th>
-          <th>Monto</th>
-          <th>Método</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>14:22</td>
-          <td>María G.</td>
-          <td>Anillo zirconia</td>
-          <td>$2,800</td>
-          <td>Efectivo</td>
-        </tr>
-        <tr>
-          <td>15:10</td>
-          <td>Juan P.</td>
-          <td>Collar infinito</td>
-          <td>$1,500</td>
-          <td>Tarjeta</td>
-        </tr>
-        <tr>
-          <td>16:45</td>
-          <td>Ana R.</td>
-          <td>Pulsera charms</td>
-          <td>$3,800</td>
-          <td>Efectivo</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <div class="quick-actions">
+        <h2>Acciones Rápidas</h2>
+        <div class="action-buttons">
+          <a href="ventas.html">
+            <button class="btn btn-primary">
+              <i class="fa-solid fa-cart-plus"></i> Nueva Venta
+            </button>
+          </a>
+        </div>
+      </div>
 
-</main>
-<script src="../dashboard.js"></script>
+      <div
+        class="featured-product-section"
+        id="featuredSection"
+        style="display: none"
+      >
+        <h2>Oferta del Día</h2>
+        <div class="product-spotlight">
+          <div class="product-image" id="featuredImage">
+            <div class="ring-placeholder">💍</div>
+          </div>
+          <div class="product-details">
+            <span class="badge">OFERTA DEL DÍA</span>
+            <h3 id="featuredTitle">Cargando...</h3>
+            <p class="description" id="featuredDesc"></p>
+            <div class="prices">
+              <span class="current-price" id="featuredPrice"></span>
+              <span class="old-price" id="featuredOldPrice"></span>
+              <span class="discount" id="featuredDiscount"></span>
+            </div>
+            <div class="meta-info">
+              <span id="featuredCode"></span>
+              <span id="featuredStock"></span>
+            </div>
+            <div class="product-actions">
+              <a href="ventas.html"
+                ><button class="btn btn-primary btn-small">
+                  <i class="fa-solid fa-cart-plus"></i> Vender Ahora
+                </button></a
+              >
+              <a href="productos.html"
+                ><button class="btn btn-outline btn-small">
+                  <i class="fa-solid fa-list"></i> Ver Kardex
+                </button></a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
 
+      <div class="recent-products">
+        <h2>Mis ventas de hoy</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Cliente</th>
+              <th>Producto</th>
+              <th>Monto</th>
+              <th>Método</th>
+            </tr>
+          </thead>
+          <tbody id="ventasHoyBody"></tbody>
+        </table>
+      </div>
+    </main>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const userName = localStorage.getItem('koraLuxe_userName');
-    if (userName) {
-      const nameEl = document.getElementById('loggedUserName');
-      if (nameEl) nameEl.textContent = userName;
-    }
-    
-    // Si la pagina tiene elemento de bienvenida (ej. Dashboard) "Bienvenido, Diany"
-    const welcomeEl = document.querySelector('.welcome-row h1');
-    if (welcomeEl && userName) {
-      welcomeEl.textContent = 'Bienvenido, ' + userName;
-    }
-  });
-</script>
-</body>
-
+    <script src="../cache.js"></script>
+    <script src="../dashboard.js"></script>
+    <script src="../dashboard-empleado.js"></script>
+  </body>
 </html>

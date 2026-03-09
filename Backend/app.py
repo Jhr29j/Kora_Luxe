@@ -1,11 +1,25 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 from config import supabase
+import bcrypt
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 app = FastAPI()
 
-# Permite peticiones desde el frontend (Electron/Localhost)
+# Executor para correr las llamadas síncronas de supabase-py en threads paralelos
+# Esto permite usar asyncio.gather() y ejecutar múltiples queries al mismo tiempo
+executor = ThreadPoolExecutor(max_workers=10)
+
+def run_query(fn):
+    """Envuelve una query síncrona de Supabase para ejecutarla en un thread async."""
+    loop = asyncio.get_event_loop()
+    return loop.run_in_executor(executor, fn)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,6 +28,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    print(f"ERROR DE VALIDACIÓN: {exc.errors()}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "body": exc.body},
+    )
+
+@app.get("/")
+async def root():
+    return {"message": "API de Kora Luxe Joyería activa", "docs": "/docs"}
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return {}
+
+# ── LOGIN ────────────────────────────────────────────────────────────
+
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -21,21 +53,35 @@ class LoginRequest(BaseModel):
 @app.post("/api/login")
 async def login(body: LoginRequest):
     try:
-        response = supabase.table("users").select("id, nombre, email, rol, password").eq("email", body.email).execute()
+        response = await run_query(
+            lambda: supabase.table("users")
+                .select("id, nombre, email, rol, password")
+                .eq("email", body.email)
+                .execute()
+        )
         users = response.data
 
-        if not users or len(users) == 0:
+        if not users:
             raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
         user = users[0]
         db_password = user['password']
 
-        # Comparación directa en texto plano
-        if body.password == db_password:
-            del user['password']
-            return {"message": "Login exitoso", "user": user}
-        else:
+        matched = (body.password == db_password)
+        if not matched:
+            try:
+                matched = bcrypt.checkpw(
+                    body.password.encode('utf-8'),
+                    db_password.encode('utf-8')
+                )
+            except Exception:
+                pass
+
+        if not matched:
             raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+        del user['password']
+        return {"message": "Login exitoso", "user": user}
 
     except HTTPException:
         raise
@@ -43,112 +89,146 @@ async def login(body: LoginRequest):
         print(f"Error en login: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ── PRODUCTOS ────────────────────────────────────────────────────────
+
 @app.get("/api/productos")
-async def get_productos():
+async def get_productos(limit: int = 50, offset: int = 0, include_images: bool = False):
     try:
-        response = supabase.table("products").select("id, nombre, categoria, precio, stock, activo").execute()
+        select_cols = "id, nombre, categoria, precio, stock, activo"
+        if include_images:
+            select_cols += ", imagen_url"
+            
+        response = await run_query(
+            lambda: supabase.table("products")
+                .select(select_cols)
+                .range(offset, offset + limit - 1)
+                .order("nombre")
+                .execute()
+        )
         return response.data
     except Exception as e:
         print(f"Error fetching productos: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/productos/{product_id}")
+async def get_producto(product_id: int):
+    try:
+        response = await run_query(
+            lambda: supabase.table("products")
+                .select("*")
+                .eq("id", product_id)
+                .execute()
+        )
+        if not response.data:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        return response.data[0]
+    except Exception as e:
+        print(f"Error fetching product {product_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ── DASHBOARD — las 4 queries corren en PARALELO ─────────────────────
+
 @app.get("/api/dashboard")
 async def get_dashboard():
     try:
-        # Ventas/Ingresos totales
-        sales_res = supabase.table("sales").select("total").execute()
+        # Lanzar todas las queries al mismo tiempo en lugar de una por una
+        sales_res, stock_res, users_res, recent_res = await asyncio.gather(
+            run_query(lambda: supabase.table("sales").select("total").execute()),
+            run_query(lambda: supabase.table("products").select("id").lte("stock", 5).execute()),
+            run_query(lambda: supabase.table("users").select("id", count="exact").execute()),
+            run_query(lambda: supabase.table("products")
+                .select("id, nombre, categoria, precio, stock, created_at")
+                .order("created_at", desc=True).limit(5).execute()),
+        )
+
         ingresos_totales = sum(s["total"] for s in sales_res.data) if sales_res.data else 0
-
-        # Productos en stock bajo (<= 5)
-        stock_res = supabase.table("products").select("id").lte("stock", 5).execute()
-        stock_bajo = len(stock_res.data) if stock_res.data else 0
-
-        # Usuarios registrados
-        users_res = supabase.table("users").select("id", count="exact").execute()
-        usuarios_registrados = users_res.count if hasattr(users_res, 'count') and users_res.count is not None else len(users_res.data)
-
-        # Últimos productos modificados (ordenados por created_at de forma manual)
-        recent_res = supabase.table("products").select("nombre, categoria, precio, stock, created_at").order("created_at", desc=True).limit(5).execute()
-        recent_products = recent_res.data if recent_res.data else []
+        stock_bajo       = len(stock_res.data) if stock_res.data else 0
+        usuarios         = (users_res.count if hasattr(users_res, 'count') and users_res.count
+                            else len(users_res.data))
+        recent_products  = recent_res.data if recent_res.data else []
 
         return {
             "ingresos_totales": ingresos_totales,
-            "stock_bajo": stock_bajo,
-            "usuarios": usuarios_registrados,
-            "recent_products": recent_products
+            "stock_bajo":       stock_bajo,
+            "usuarios":         usuarios,
+            "recent_products":  recent_products
         }
     except Exception as e:
         print(f"Error fetching dashboard: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# ── REPORTE DIARIO ───────────────────────────────────────────────────
 
 @app.get("/api/reporte-diario")
 async def get_reporte_diario():
     try:
         from datetime import datetime
         today = datetime.now().strftime("%Y-%m-%d")
-        
-        # Filtramos ventas de hoy
-        # Nota: gte es >= hoy 00:00:00
-        res = supabase.table("sales").select("total, metodo_pago, created_at").gte("created_at", f"{today}T00:00:00").execute()
+
+        res = await run_query(
+            lambda: supabase.table("sales")
+                .select("total, metodo_pago, created_at")
+                .gte("created_at", f"{today}T00:00:00")
+                .execute()
+        )
         sales_today = res.data if res.data else []
-        
-        total_venta = sum(s["total"] for s in sales_today)
+
+        total_venta   = sum(s["total"] for s in sales_today)
         conteo_ventas = len(sales_today)
-        
+
         metodos = {}
         for s in sales_today:
             m = s["metodo_pago"]
             metodos[m] = metodos.get(m, 0) + s["total"]
-            
+
         return {
-            "fecha": today,
-            "total_venta": total_venta,
-            "conteo_ventas": conteo_ventas,
-            "metodos_pago": metodos,
-            "ventas": sales_today
+            "fecha":          today,
+            "total_venta":    total_venta,
+            "conteo_ventas":  conteo_ventas,
+            "metodos_pago":   metodos,
+            "ventas":         sales_today
         }
     except Exception as e:
         print(f"Error fetching daily report: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ── CONFIGURACIÓN ────────────────────────────────────────────────────
+
+_DEFAULT_CONFIG = {
+    "nombre_empresa": "Kora Luxe Joyería",
+    "rnc":            "131-45678-9",
+    "telefono":       "809-555-0000",
+    "direccion":      "Av. Independencia #45, Santo Domingo Oeste",
+    "email_contacto": "info@koraluxe.do",
+    "itbis":          18.0,
+    "descuento_max":  30.0,
+    "stock_minimo":   5
+}
+
 @app.get("/api/configuracion")
 async def get_configuracion():
     try:
-        response = supabase.table("settings").select("*").eq("id", 1).execute()
-        if not response.data:
-            return {
-                "nombre_empresa": "Kora Luxe Joyería",
-                "rnc": "131-45678-9",
-                "telefono": "809-555-0000",
-                "direccion": "Av. Independencia #45, Santo Domingo Oeste",
-                "email_contacto": "info@koraluxe.do",
-                "itbis": 18.0,
-                "descuento_max": 30.0,
-                "stock_minimo": 5
-            }
-        return response.data[0]
+        response = await run_query(
+            lambda: supabase.table("settings").select("*").eq("id", 1).execute()
+        )
+        return response.data[0] if response.data else _DEFAULT_CONFIG
     except Exception as e:
         print(f"Error fetching configuration: {e}")
-        return {
-                "nombre_empresa": "Kora Luxe Joyería",
-                "rnc": "131-45678-9",
-                "telefono": "809-555-0000",
-                "direccion": "Av. Independencia #45, Santo Domingo Oeste",
-                "email_contacto": "info@koraluxe.do",
-                "itbis": 18.0,
-                "descuento_max": 30.0,
-                "stock_minimo": 5
-            }
+        return _DEFAULT_CONFIG
 
 @app.put("/api/configuracion")
 async def update_configuracion(config: dict):
     try:
         config["id"] = 1
-        response = supabase.table("settings").upsert(config).execute()
+        response = await run_query(
+            lambda: supabase.table("settings").upsert(config).execute()
+        )
         return {"message": "Configuración actualizada", "data": response.data}
     except Exception as e:
         print(f"Error updating configuration: {e}")
         raise HTTPException(status_code=500, detail=f"Error en la base de datos: {str(e)}")
+
+# ── USUARIOS ─────────────────────────────────────────────────────────
 
 class UserCreate(BaseModel):
     nombre: str
@@ -157,10 +237,21 @@ class UserCreate(BaseModel):
     rol: str
     activo: bool = True
 
+class UserUpdate(BaseModel):
+    nombre:   Optional[str]  = None
+    email:    Optional[str]  = None
+    password: Optional[str]  = None
+    rol:      Optional[str]  = None
+    activo:   Optional[bool] = None
+
 @app.get("/api/usuarios")
 async def get_usuarios():
     try:
-        response = supabase.table("users").select("id, nombre, email, rol, activo, created_at").execute()
+        response = await run_query(
+            lambda: supabase.table("users")
+                .select("id, nombre, email, rol, activo, created_at")
+                .execute()
+        )
         return response.data
     except Exception as e:
         print(f"Error fetching usuarios: {e}")
@@ -169,33 +260,32 @@ async def get_usuarios():
 @app.post("/api/usuarios")
 async def create_usuario(user: UserCreate):
     try:
-        data = {
-            "nombre": user.nombre,
-            "email": user.email,
-            "password": user.password,
-            "rol": user.rol,
-            "activo": user.activo
-        }
-        response = supabase.table("users").insert(data).execute()
+        response = await run_query(
+            lambda: supabase.table("users").insert(user.dict()).execute()
+        )
         return {"message": "Usuario creado exitosamente", "data": response.data}
     except Exception as e:
         print(f"Error creating usuario: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-class UserUpdate(BaseModel):
-    nombre: str | None = None
-    email: str | None = None
-    password: str | None = None
-    rol: str | None = None
-    activo: bool | None = None
-
 @app.put("/api/usuarios/{user_id}")
-async def update_usuario(user_id: str, user: UserUpdate):
+async def update_usuario(user_id: int, user: UserUpdate):
     try:
         data = {k: v for k, v in user.dict().items() if v is not None}
         if not data:
             raise HTTPException(status_code=400, detail="No hay datos para actualizar")
-        response = supabase.table("users").update(data).eq("id", user_id).execute()
+
+        # Proteger al admin de desactivarse
+        if data.get("activo") is False:
+            existing = await run_query(
+                lambda: supabase.table("users").select("rol").eq("id", user_id).execute()
+            )
+            if existing.data and existing.data[0]["rol"] == "admin":
+                raise HTTPException(status_code=403, detail="No se puede desactivar a un administrador")
+
+        response = await run_query(
+            lambda: supabase.table("users").update(data).eq("id", user_id).execute()
+        )
         return {"message": "Usuario actualizado", "data": response.data}
     except HTTPException:
         raise
@@ -203,78 +293,87 @@ async def update_usuario(user_id: str, user: UserUpdate):
         print(f"Error updating usuario: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ── PRODUCTOS CRUD ───────────────────────────────────────────────────
+
 class ProductCreate(BaseModel):
-    nombre: str
-    categoria: str | None = None
-    precio: float
-    stock: int
-    activo: bool = True
-    imagen_url: str | None = None
+    nombre:     str
+    categoria:  Optional[str]   = None
+    precio:     float
+    stock:      int
+    activo:     bool            = True
+    imagen_url: Optional[str]   = None
 
 @app.post("/api/productos")
 async def create_producto(product: ProductCreate):
     try:
-        data = product.dict()
-        response = supabase.table("products").insert(data).execute()
+        response = await run_query(
+            lambda: supabase.table("products").insert(product.dict()).execute()
+        )
         return {"message": "Producto creado exitosamente", "data": response.data}
     except Exception as e:
         print(f"Error creating producto: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/api/productos/{product_id}")
-async def update_producto(product_id: str, product: ProductCreate):
+async def update_producto(product_id: int, product: ProductCreate):
     try:
         data = {k: v for k, v in product.dict().items() if v is not None}
-        response = supabase.table("products").update(data).eq("id", product_id).execute()
+        response = await run_query(
+            lambda: supabase.table("products").update(data).eq("id", product_id).execute()
+        )
         return {"message": "Producto actualizado", "data": response.data}
     except Exception as e:
         print(f"Error updating producto: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/api/productos/{product_id}")
-async def delete_producto(product_id: str):
+async def delete_producto(product_id: int):
     try:
-        supabase.table("products").delete().eq("id", product_id).execute()
+        await run_query(
+            lambda: supabase.table("products").delete().eq("id", product_id).execute()
+        )
         return {"message": "Producto eliminado"}
     except Exception as e:
         print(f"Error deleting producto: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ── VENTAS ───────────────────────────────────────────────────────────
+
 class SaleItem(BaseModel):
-    product_id: str
-    cantidad: int
+    product_id:      int
+    cantidad:        int
     precio_unitario: float
 
 class VentaRequest(BaseModel):
+    user_id:     int
     metodo_pago: str
-    total: float
-    items: list[SaleItem]
+    total:       float
+    items:       list[SaleItem]
 
 @app.post("/api/ventas")
 async def create_venta(body: VentaRequest):
     try:
-        # Get the current user id from the request (stored in token)
-        # For now we look up users - later this would come from an auth token.
-        # Register the sale in 'sales' table
-        sale_response = supabase.table("sales").insert({
-            "total": body.total,
-            "metodo_pago": body.metodo_pago
-        }).execute()
+        sale_response = await run_query(
+            lambda: supabase.table("sales").insert({
+                "user_id":     body.user_id,
+                "total":       body.total,
+                "metodo_pago": body.metodo_pago
+            }).execute()
+        )
+        sale_id = sale_response.data[0]['id']
 
-        sale = sale_response.data[0]
-        sale_id = sale['id']
-
-        # Register each item in 'sale_details'
         details = [
             {
-                "sale_id": sale_id,
-                "product_id": item.product_id,
-                "cantidad": item.cantidad,
+                "sale_id":         sale_id,
+                "product_id":      item.product_id,
+                "cantidad":        item.cantidad,
                 "precio_unitario": item.precio_unitario
             }
             for item in body.items
         ]
-        supabase.table("sale_details").insert(details).execute()
+        await run_query(
+            lambda: supabase.table("sale_details").insert(details).execute()
+        )
 
         return {"message": "Venta registrada exitosamente", "sale_id": sale_id}
 

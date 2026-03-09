@@ -1,135 +1,138 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kora Luxe • Nueva Venta</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/ventas.css"/>
-</head>
-<body>
-
-<header>
-  <div class="logo-container">
-    <a href="./dashboard.html">
-      <img src="./img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
-    </a>
-  </div>
-
-  <div class="search-container">
-    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-    <input type="text" placeholder="Buscar producto, código o cliente..."/>
-  </div>
-
-  
-  <div class="user-profile" style="margin-right: 15px; display: flex; align-items: center; gap: 8px; font-weight: 500;">
-    <i class="fa-solid fa-circle-user" style="font-size: 1.2rem; color: #d4af37;"></i>
-    <span id="loggedUserName">Usuario</span>
-  </div>
-  <div class="menu-toggle" id="menuToggle">
-    <i class="fa-solid fa-bars"></i>
-  </div>
-</header>
-
-<!-- Overlay para cerrar menú al clic fuera -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<!-- Menú hamburguesa -->
-<div class="sidebar-menu" id="sidebarMenu">
-  <span class="close-btn" id="closeMenu">×</span>
-  <a href="dashboard-empleado.html"><i class="fa-solid fa-house"></i> Inicio</a>
-  <a href="ventas.html" class="active"><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a>
-  <a href="productos-empleado.html"><i class="fa-solid fa-gem"></i> Productos</a>
-  <a href="registrar-cliente.html"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</a>
-  <a href="configuracion-empleado.html"><i class="fa-solid fa-gear"></i> Mi Configuración</a>
-  <a href="login.html"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
-</div>
-
-<main class="content">
-  <h1>Nueva Venta</h1>
-
-  <div class="sales-layout">
-
-    <!-- Lado izquierdo: búsqueda y lista de productos -->
-    <div class="products-section">
-      <div class="search-bar-main">
-        <input type="text" id="searchProduct" placeholder="Buscar por nombre, código o categoría..."/>
-        <i class="fa-solid fa-search"></i>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kora Luxe • Nueva Venta</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/ventas.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo-container">
+        <a href="./dashboard.html">
+          <img
+            src="./img/Logo Kora Luxe.png"
+            alt="Kora Luxe logo"
+            class="header-logo"
+          />
+        </a>
       </div>
-
-      <div class="product-list" id="productList">
-        <!-- Productos se cargan dinámicamente -->
+      <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" placeholder="Buscar producto, código o cliente..." />
       </div>
+      <div
+        class="user-profile"
+        style="
+          margin-right: 15px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+        "
+      >
+        <i
+          class="fa-solid fa-circle-user"
+          style="font-size: 1.2rem; color: #d4af37"
+        ></i>
+        <span id="loggedUserName">Usuario</span>
+      </div>
+      <div class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+    </header>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar-menu" id="sidebarMenu">
+      <span class="close-btn" id="closeMenu">×</span>
+      <a href="dashboard.html"><i class="fa-solid fa-house"></i> Inicio</a>
+      <a href="ventas.html" class="active"
+        ><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a
+      >
+      <a href="productos.html"><i class="fa-solid fa-gem"></i> Productos</a>
+      <a href="configuracion-empleado.html"
+        ><i class="fa-solid fa-gear"></i> Mi Configuración</a
+      >
+      <a href="login.html"
+        ><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a
+      >
     </div>
 
-    <!-- Lado derecho: carrito y pago -->
-    <div class="cart-section">
-      <div class="cart-header">
-        <span>Carrito actual</span>
-        <span id="cartCount">0 artículos</span>
+    <main class="content">
+      <h1>Nueva Venta</h1>
+      <div class="sales-layout">
+        <div class="products-section">
+          <div class="search-bar-main">
+            <input
+              type="text"
+              id="searchProduct"
+              placeholder="Buscar por nombre, código o categoría..."
+            />
+            <i class="fa-solid fa-search"></i>
+          </div>
+          <div class="product-list" id="productList"></div>
+        </div>
+
+        <div class="cart-section">
+          <div class="cart-header">
+            <span>Carrito actual</span>
+            <span id="cartCount">0 artículos</span>
+          </div>
+          <div class="cart-items" id="cartItems"></div>
+          <div class="cart-summary">
+            <div class="summary-row">
+              <span>Subtotal</span><span id="subtotal">$0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>Descuento</span><span id="discount">$0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>IVA (18%)</span><span id="iva">$0.00</span>
+            </div>
+            <div class="summary-total">
+              <span>Total</span><span id="total">$0.00</span>
+            </div>
+            <div class="summary-row" style="margin-top: 1rem; font-weight: 600">
+              <span>Método de pago</span>
+              <span id="selectedPayment">Ninguno seleccionado</span>
+            </div>
+          </div>
+          <div class="payment-methods">
+            <button class="payment-btn" data-method="Efectivo">Efectivo</button>
+            <button class="payment-btn" data-method="Tarjeta">Tarjeta</button>
+            <button class="payment-btn" data-method="Transferencia">
+              Transferencia
+            </button>
+            <button class="payment-btn" data-method="WhatsApp Pay">
+              WhatsApp Pay
+            </button>
+          </div>
+          <button class="btn-finish" id="finishSale">
+            <i class="fa-solid fa-check-circle"></i> Cerrar Venta
+          </button>
+        </div>
       </div>
+    </main>
 
-      <div class="cart-items" id="cartItems">
-        <!-- Items se agregan dinámicamente -->
-      </div>
-
-      <div class="cart-summary">
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <span id="subtotal">$0.00</span>
-        </div>
-        <div class="summary-row">
-          <span>Descuento</span>
-          <span id="discount">$0.00</span>
-        </div>
-        <div class="summary-row">
-          <span>IVA (18%)</span>
-          <span id="iva">$0.00</span>
-        </div>
-        <div class="summary-total">
-          <span>Total</span>
-          <span id="total">$0.00</span>
-        </div>
-        <div class="summary-row" style="margin-top: 1rem; font-weight: 600;">
-          <span>Método de pago</span>
-          <span id="selectedPayment">Ninguno seleccionado</span>
-        </div>
-      </div>
-
-      <div class="payment-methods">
-        <button class="payment-btn" data-method="Efectivo">Efectivo</button>
-        <button class="payment-btn" data-method="Tarjeta">Tarjeta</button>
-        <button class="payment-btn" data-method="Transferencia">Transferencia</button>
-        <button class="payment-btn" data-method="WhatsApp Pay">WhatsApp Pay</button>
-      </div>
-
-      <button class="btn-finish" id="finishSale">
-        <i class="fa-solid fa-check-circle"></i> Cerrar Venta
-      </button>
-    </div>
-
-  </div>
-</main>
-
-<script src="../ventas.js"></script>
-
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const userName = localStorage.getItem('koraLuxe_userName');
-    if (userName) {
-      const nameEl = document.getElementById('loggedUserName');
-      if (nameEl) nameEl.textContent = userName;
-    }
-    
-    // Si la pagina tiene elemento de bienvenida (ej. Dashboard) "Bienvenido, Diany"
-    const welcomeEl = document.querySelector('.welcome-row h1');
-    if (welcomeEl && userName) {
-      welcomeEl.textContent = 'Bienvenido, ' + userName;
-    }
-  });
-</script>
-</body>
-
+    <script src="../cache.js"></script>
+    <script src="../ventas.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const userName = localStorage.getItem("koraLuxe_userName");
+        if (userName) {
+          const nameEl = document.getElementById("loggedUserName");
+          if (nameEl) nameEl.textContent = userName;
+        }
+      });
+    </script>
+  </body>
 </html>

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kora Luxe • Mi Configuración</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/configuracion.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo-container">
+        <a href="dashboard.html">
+          <img
+            src="./img/Logo Kora Luxe.png"
+            alt="Kora Luxe logo"
+            class="header-logo"
+          />
+        </a>
+      </div>
+      <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" placeholder="Buscar producto, código o cliente..." />
+      </div>
+      <div
+        class="user-profile"
+        style="
+          margin-right: 15px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+          color: white;
+        "
+      >
+        <i
+          class="fa-solid fa-circle-user"
+          style="font-size: 1.2rem; color: #d4af37"
+        ></i>
+        <span id="loggedUserName">Usuario</span>
+      </div>
+      <div class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+    </header>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-menu" id="sidebarMenu">
+      <span class="close-btn" id="closeMenu">×</span>
+      <a href="dashboard.html"><i class="fa-solid fa-house"></i> Inicio</a>
+      <a href="ventas.html"
+        ><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a
+      >
+      <a href="productos.html"><i class="fa-solid fa-gem"></i> Productos</a>
+      <a href="configuracion-empleado.html" class="active"
+        ><i class="fa-solid fa-gear"></i> Mi Configuración</a
+      >
+      <a href="login.html"
+        ><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a
+      >
+    </div>
+
+    <main class="content">
+      <h1>Mi Configuración</h1>
+
+      <div class="settings-container">
+        <div class="group">
+          <h2>Mis datos</h2>
+          <div class="field">
+            <label>Nombre</label>
+            <input
+              type="text"
+              id="confNombre"
+              placeholder="Tu nombre"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid var(--border);
+                border-radius: 8px;
+                font-size: 1rem;
+                font-family: &quot;Inter&quot;, sans-serif;
+                color: var(--text);
+                background: white;
+                outline: none;
+                transition: border-color 0.2s;
+              "
+              onfocus="this.style.borderColor = '#2196f3'"
+              onblur="this.style.borderColor = 'var(--border)'"
+            />
+          </div>
+          <div class="field">
+            <label>Email registrado:</label>
+            <input type="email" id="confEmail" readonly />
+          </div>
+          <p class="note">
+            Como empleado, no puedes modificar tu email. Contacta al
+            administrador si necesitas cambios.
+          </p>
+        </div>
+
+        <div class="group">
+          <h2>Método de pago preferido en caja</h2>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="payment"
+                value="Efectivo"
+                id="pagoEfectivo"
+                checked
+              />
+              <span>Efectivo</span>
+            </label>
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="payment"
+                value="Tarjeta"
+                id="pagoTarjeta"
+              />
+              <span>Tarjeta</span>
+            </label>
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="payment"
+                value="Transferencia"
+                id="pagoTransferencia"
+              />
+              <span>Transferencia</span>
+            </label>
+            <label class="radio-option">
+              <input
+                type="radio"
+                name="payment"
+                value="WhatsApp Pay"
+                id="pagoWhatsapp"
+              />
+              <span>WhatsApp Pay</span>
+            </label>
+          </div>
+          <p class="note">
+            Esta preferencia solo afecta la interfaz al registrar ventas
+            rápidas.
+          </p>
+        </div>
+
+        <div class="group">
+          <h2>Tema de la interfaz</h2>
+          <div class="theme-buttons">
+            <button class="theme-btn light active" data-theme="light">
+              <i class="fa-solid fa-sun"></i> Claro
+            </button>
+            <button class="theme-btn dark" data-theme="dark">
+              <i class="fa-solid fa-moon"></i> Oscuro
+            </button>
+          </div>
+        </div>
+
+        <div class="logout-container">
+          <button
+            class="btn-logout"
+            onclick="window.location.href = 'login.html'"
+          >
+            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+          </button>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-accept" id="btnGuardar">
+            Guardar Cambios
+          </button>
+          <button class="btn btn-cancel" id="btnCancelar">Cancelar</button>
+        </div>
+      </div>
+    </main>
+
+    <div
+      id="toast"
+      style="
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: #10b981;
+        color: white;
+        padding: 14px 20px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(80px);
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 9999;
+      "
+    >
+      <i class="fa-solid fa-check-circle"></i>
+      <span id="toastMsg">Cambios guardados</span>
+    </div>
+
+    <script src="../configuracion-empleado.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const userName = localStorage.getItem("koraLuxe_userName");
+        if (userName) {
+          const nameEl = document.getElementById("loggedUserName");
+          if (nameEl) nameEl.textContent = userName;
+        }
+      });
+    </script>
+  </body>
+</html>

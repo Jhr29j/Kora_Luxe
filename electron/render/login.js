@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       localStorage.setItem('koraLuxe_userRol', userRol);
       localStorage.setItem('koraLuxe_userName', userName);
+      localStorage.setItem('koraLuxe_userId', data.user.id);
       
       if (userRol === 'admin') {
         window.location.href = 'index.html';
