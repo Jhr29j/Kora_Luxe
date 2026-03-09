@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kora Luxe • Usuarios (Admin)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/electron/render/styles/style.css"/>
+</head>
+<body>
+
+<header>
+  <div class="logo-container">
+    <a href="/electron/render/index.html">
+      <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
+    </a>
+  </div>
+  <div class="search-container">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" placeholder="Buscar producto, código o cliente..."/>
+  </div>
+  <div class="menu-toggle" id="menuToggle">
+    <i class="fa-solid fa-bars"></i>
+  </div>
+</header>
+
+<!-- Overlay para cerrar el menú al hacer clic fuera -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar-menu" id="sidebarMenu">
+  <span class="close-btn" id="closeMenu">×</span>
+  <a href="index.html"><i class="fa-solid fa-gem"></i> Inicio</a>
+  <a href="productos-admin.html"><i class="fa-solid fa-gem"></i> Productos</a>
+  <a href="usuarios.html"><i class="fa-solid fa-users"></i> Usuarios</a>
+  <a href="gestionar-clientes-admin.html"><i class="fa-solid fa-user-group"></i> Gestionar Clientes</a>
+  <a href="configuracion-admin.html"><i class="fa-solid fa-gear"></i> Configuración</a>
+  <a href="login.html"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+</div>
+
+<main class="content">
+  <h1>Gestión de Usuarios</h1>
+
+  <div class="users-header">
+    <h2>Usuarios del sistema</h2>
+    <button class="btn btn-add" onclick="openModal(false)">
+      <i class="fa-solid fa-user-plus"></i> Agregar Nuevo Usuario
+    </button>
+  </div>
+
+  <div class="users-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Fecha Creación</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="usersTableBody">
+        <tr data-id="1">
+          <td>Diany Saony</td>
+          <td>diany.saony@koraluxe.do</td>
+          <td>Administrador</td>
+          <td>15 Ene 2025</td>
+          <td><span class="status-active">Activo</span></td>
+          <td class="user-actions">
+            <button class="action-btn action-edit" onclick="openModal(true, 1)">Editar</button>
+            <button class="action-btn action-toggle">Desactivar</button>
+          </td>
+        </tr>
+        <tr data-id="2">
+          <td>Juan Pérez</td>
+          <td>juan.perez@koraluxe.do</td>
+          <td>Vendedor</td>
+          <td>20 Feb 2025</td>
+          <td><span class="status-active">Activo</span></td>
+          <td class="user-actions">
+            <button class="action-btn action-edit" onclick="openModal(true, 2)">Editar</button>
+            <button class="action-btn action-toggle">Desactivar</button>
+            <button class="action-btn action-delete">Eliminar</button>
+          </td>
+        </tr>
+        <tr data-id="3">
+          <td>María López</td>
+          <td>maria.lopez@koraluxe.do</td>
+          <td>Vendedor</td>
+          <td>05 Mar 2025</td>
+          <td><span class="status-inactive">Inactivo</span></td>
+          <td class="user-actions">
+            <button class="action-btn action-edit" onclick="openModal(true, 3)">Editar</button>
+            <button class="action-btn action-toggle">Activar</button>
+            <button class="action-btn action-delete">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="userModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Nuevo Usuario</h2>
+        <span class="modal-close" onclick="closeModal()">×</span>
+      </div>
+
+      <form id="userForm">
+        <input type="hidden" id="editId">
+
+        <div class="modal-field">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" required>
+        </div>
+
+        <div class="modal-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" required>
+        </div>
+
+        <div class="modal-field" id="passwordField">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" required>
+        </div>
+
+        <div class="modal-field">
+          <label for="rol">Rol</label>
+          <select id="rol" required>
+            <option value="">Selecciona rol</option>
+            <option value="admin">Administrador</option>
+            <option value="vendedor">Vendedor</option>
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label for="estado">Estado</label>
+          <select id="estado" required>
+            <option value="activo">Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-save">Guardar</button>
+          <button type="button" class="btn btn-cancel" onclick="closeModal()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<script src="/electron/usuarios.js"></script>
+
+</body>
+</html>

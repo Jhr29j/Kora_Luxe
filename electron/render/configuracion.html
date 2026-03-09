@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kora Luxe • Mi Configuración</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/electron/render/styles/configuracion.css"/>
+</head>
+<body>
+
+<header>
+  <div class="logo-container">
+    <a href="index.html">
+      <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
+    </a>
+  </div>
+  <div class="search-container">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" placeholder="Buscar producto, código o cliente..."/>
+  </div>
+  <div class="menu-toggle" id="menuToggle">
+    <i class="fa-solid fa-bars"></i>
+  </div>
+</header>
+<!-- Overlay para cerrar el menú al hacer clic fuera -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="sidebar-menu" id="sidebarMenu">
+  <span class="close-btn" id="closeMenu">×</span>
+  <a href="index.html"><i class="fa-solid fa-gem"></i> Inicio</a>
+  <a href="productos-admin.html"><i class="fa-solid fa-gem"></i> Productos</a>
+  <a href="usuarios.html"><i class="fa-solid fa-users"></i> Usuarios</a>
+  <a href="gestionar-clientes-admin.html"><i class="fa-solid fa-user-group"></i> Gestionar Clientes</a>
+  <a href="configuracion-admin.html"><i class="fa-solid fa-gear"></i> Configuración</a>
+  <a href="login.html"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+</div>
+
+<!-- Overlay para cerrar el menú al hacer clic fuera -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Menú hamburguesa (overlay) -->
+<div class="sidebar-menu" id="sidebarMenu">
+  <span class="close-btn" id="closeMenu" style="cursor:pointer;">
+    <svg viewBox="0 0 20 20" width="20" height="20" stroke="#555" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="5" x2="15" y2="15"/>
+      <line x1="15" y1="5" x2="5" y2="15"/>
+    </svg>
+  </span>
+  <a href="index.html">
+    <span style="display:inline-block;width:20px;height:20px;vertical-align:middle;">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+        <polygon points="10,2 2,8 5,18 15,18 18,8"/>
+      </svg>
+    </span> Inicio
+  </a>
+  <a href="productos-admin.html">
+    <span style="display:inline-block;width:20px;height:20px;vertical-align:middle;">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+        <rect x="4" y="4" width="12" height="12" rx="3"/>
+      </svg>
+    </span> Productos
+  </a>
+  <a href="configuracion-admin.html">
+    <span style="display:inline-block;width:20px;height:20px;vertical-align:middle;">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+        <circle cx="10" cy="10" r="3"/>
+        <path d="M10 2v2 M10 16v2 M2 10h2 M16 10h2 M4.93 4.93l1.41 1.41 M13.66 13.66l1.41 1.41 M4.93 15.07l1.41-1.41 M13.66 6.34l1.41-1.41"/>
+      </svg>
+    </span> Configuración
+  </a>
+  <a href="#">
+    <span style="display:inline-block;width:20px;height:20px;vertical-align:middle;">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+        <path d="M7 4v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+        <rect x="7" y="4" width="6" height="12" rx="2"/>
+        <path d="M2 10h8"/>
+        <polyline points="6,7 2,10 6,13"/>
+      </svg>
+    </span> Cerrar sesión
+  </a>
+</div>
+
+<main class="content">
+  <h1>Mi Configuración</h1>
+
+  <div class="settings-container">
+
+    <div class="group">
+      <h2>Mis datos</h2>
+      <div class="field">
+        <label>Email registrado:</label>
+        <input type="email" value="diany.saony@koraluxe.do" readonly>
+      </div>
+      <p class="note">Como empleado, no puedes modificar tu email. Contacta al administrador si necesitas cambios.</p>
+    </div>
+
+    <div class="group">
+      <h2>Método de pago preferido en caja</h2>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="payment" id="efectivo" checked>
+          <span>Efectivo</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="payment" id="tarjeta">
+          <span>Tarjeta</span>
+        </label>
+      </div>
+      <p class="note">Esta preferencia solo afecta la interfaz al registrar ventas rápidas.</p>
+    </div>
+
+    <div class="group">
+      <h2>Tema de la interfaz</h2>
+      <div class="theme-buttons">
+        <button class="theme-btn light active" data-theme="light">
+          <i class="fa-solid fa-sun"></i> Claro
+        </button>
+        <button class="theme-btn dark" data-theme="dark">
+          <i class="fa-solid fa-moon"></i> Oscuro
+        </button>
+      </div>
+    </div>
+
+    <!-- Botón cerrar sesión: más pequeño y centrado -->
+    <div class="logout-container">
+      <button class="btn-logout">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+      </button>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-accept">Guardar Cambios</button>
+      <button class="btn btn-cancel">Cancelar</button>
+    </div>
+
+  </div>
+</main>
+
+<script src="/electron/configuracion.js"></script>
+
+</body>
+</html>

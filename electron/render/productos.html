@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kora Luxe • Productos (Empleado)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/electron/render/styles/productos2.css"/>
+</head>
+<body>
+
+<header>
+  <div class="logo-container">
+    <a href="/electron/render/dashboard.html">
+      <img src="img/Logo Kora Luxe.png" alt="Kora Luxe logo" class="header-logo">
+    </a>
+  </div>
+
+  <div class="search-container">
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input type="text" placeholder="Buscar producto, código o cliente..."/>
+  </div>
+
+  <div class="menu-toggle" id="menuToggle">
+    <i class="fa-solid fa-bars"></i>
+  </div>
+</header>
+
+<!-- Overlay para cerrar menú al clic fuera -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Menú hamburguesa -->
+<div class="sidebar-menu" id="sidebarMenu">
+  <span class="close-btn" id="closeMenu">×</span>
+  <a href="dashboard-empleado.html"><i class="fa-solid fa-house"></i> Inicio</a>
+  <a href="ventas.html"><i class="fa-solid fa-cart-plus"></i> Nueva Venta</a>
+  <a href="productos-empleado.html" class="active"><i class="fa-solid fa-gem"></i> Productos</a>
+  <a href="registrar-cliente.html"><i class="fa-solid fa-user-plus"></i> Registrar Cliente</a>
+  <a href="configuracion-empleado.html"><i class="fa-solid fa-gear"></i> Mi Configuración</a>
+  <a href="login.html"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+</div>
+
+<main class="content">
+  <h1>Catálogo de Productos</h1>
+
+  <div class="search-section">
+    <div class="search-box">
+      <i class="fa-solid fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Buscar productos..." onkeyup="filterProducts()">
+    </div>
+
+    <div class="category-filters">
+      <button class="filter-btn active" onclick="filterByCategory('all')">Todos</button>
+      <button class="filter-btn" onclick="filterByCategory('anillos')">Anillos</button>
+      <button class="filter-btn" onclick="filterByCategory('collares')">Collares</button>
+      <button class="filter-btn" onclick="filterByCategory('pulseras')">Pulseras</button>
+      <button class="filter-btn" onclick="filterByCategory('aretes')">Aretes</button>
+      <button class="filter-btn" onclick="filterByCategory('relojes')">Relojes</button>
+      <button class="filter-btn" onclick="filterByCategory('conjuntos')">Conjuntos</button>
+      <button class="filter-btn" onclick="filterByCategory('premium')">Premium</button>
+    </div>
+  </div>
+
+  <div class="results-info">
+    <span class="results-count" id="resultsCount">Mostrando 22 productos</span>
+    <span class="clear-search" onclick="clearSearch()" id="clearSearchBtn" style="display:none;">Limpiar búsqueda</span>
+  </div>
+
+  <div class="catalog">
+    <div class="products-grid" id="productsGrid">
+      <!-- Productos cargados dinámicamente -->
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>© 2026 Kora Luxe - Catálogo de Joyería. Todos los derechos reservados.</p>
+  </div>
+</main>
+
+<script src="/electron/productos.js"></script>
+
+</body>
+</html>
