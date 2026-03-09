@@ -1,48 +1,50 @@
 import bcrypt
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from config import supabase
 
-app = Flask(__name__)
-CORS(app)  # Permite peticiones desde el frontend (Electron/Localhost)
+app = FastAPI()
 
-@app.route('/api/login', methods=['POST'])
-def login():
+# Permite peticiones desde el frontend (Electron/Localhost)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+@app.post("/api/login")
+async def login(body: LoginRequest):
     try:
-        data = request.get_json()
-        
-        if not data or not 'email' in data or not 'password' in data:
-            return jsonify({"error": "Faltan credenciales"}), 400
-            
-        email = data['email']
-        password = data['password']
-        
-        # Buscar el usuario por email usando el cliente estandar de Supabase
-        response = supabase.table("users").select("id, nombre, email, rol, password").eq("email", email).execute()
+        # Buscar el usuario por email usando el cliente estándar de Supabase
+        response = supabase.table("users").select("id, nombre, email, rol, password").eq("email", body.email).execute()
         users = response.data
-        
+
         if not users or len(users) == 0:
-            return jsonify({"error": "Credenciales inválidas"}), 401
-            
+            raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
         user = users[0]
         db_password_hash = user['password']
-        
+
         # Comparar la contraseña provista con el hash de la BD usando bcrypt
-        # (El hash de Supabase 'crypt' usa el formato de bcrypt)
-        if bcrypt.checkpw(password.encode('utf-8'), db_password_hash.encode('utf-8')):
-            # Remover la contraseña antes de devolver el usuario
-            del user['password']
-            return jsonify({
-                "message": "Login exitoso",
-                "user": user
-            }), 200
+        if bcrypt.checkpw(body.password.encode('utf-8'), db_password_hash.encode('utf-8')):
+            del user['password']  # No devolver el hash
+            return {"message": "Login exitoso", "user": user}
         else:
-            return jsonify({"error": "Credenciales inválidas"}), 401
-            
+            raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error en login: {e}")
-        return jsonify({"error": str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == '__main__':
-    # Correr el servidor en el puerto 5000
-    app.run(debug=True, port=5000)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="0.0.0.0", port=5000, reload=True)

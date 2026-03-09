@@ -41,8 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Login exitoso, verificar el rol
+      // Login exitoso, guardar datos y verificar el rol
       const userRol = data.user.rol;
+      const userName = data.user.nombre;
+      
+      localStorage.setItem('koraLuxe_userRol', userRol);
+      localStorage.setItem('koraLuxe_userName', userName);
       
       if (userRol === 'admin') {
         window.location.href = 'index.html';
