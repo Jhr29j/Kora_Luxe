@@ -31,12 +31,23 @@
         <input type="text" placeholder="Buscar producto, código o cliente..." />
       </div>
 
-      
-  <div class="user-profile" style="margin-right: 15px; display: flex; align-items: center; gap: 8px; font-weight: 500;">
-    <i class="fa-solid fa-circle-user" style="font-size: 1.2rem; color: #d4af37;"></i>
-    <span id="loggedUserName">Usuario</span>
-  </div>
-  <div class="menu-toggle" id="menuToggle">
+      <div
+        class="user-profile"
+        style="
+          margin-right: 15px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+        "
+      >
+        <i
+          class="fa-solid fa-circle-user"
+          style="font-size: 1.2rem; color: #d4af37"
+        ></i>
+        <span id="loggedUserName">Usuario</span>
+      </div>
+      <div class="menu-toggle" id="menuToggle">
         <i class="fa-solid fa-bars"></i>
       </div>
     </header>
@@ -70,7 +81,7 @@
         <div class="stat-card">
           <i class="fa-solid fa-coins stat-icon gold"></i>
           <h3>Ventas Hoy</h3>
-          <div class="stat-value">$48,750</div>
+          <div class="stat-value" id="statVentasHoy">$...</div>
         </div>
         <div class="stat-card">
           <i
@@ -78,20 +89,20 @@
             style="color: var(--accent-blue)"
           ></i>
           <h3>Productos en Stock Bajo</h3>
-          <div class="stat-value">14</div>
+          <div class="stat-value" id="statStockBajo">...</div>
         </div>
         <div class="stat-card">
           <i
             class="fa-solid fa-user-group stat-icon"
             style="color: #10b981"
           ></i>
-          <h3>Clientes Nuevos (Mes)</h3>
-          <div class="stat-value">87</div>
+          <h3>Usuarios Registrados</h3>
+          <div class="stat-value" id="statUsuarios">...</div>
         </div>
         <div class="stat-card">
           <i class="fa-solid fa-dollar-sign stat-icon gold"></i>
-          <h3>Ingresos Mes</h3>
-          <div class="stat-value">$312,400</div>
+          <h3>Ingresos Totales</h3>
+          <div class="stat-value" id="statIngresos">$...</div>
         </div>
       </div>
 
@@ -101,9 +112,9 @@
           <a href="productos-admin.html"
             ><button class="btn btn-gold">
               <i class="fa-solid fa-gem"></i> Agregar Producto
-            </button></a
-          >
-          <button class="btn btn-danger">
+            </button>
+          </a>
+          <button class="btn btn-danger" id="btnReporteDiario">
             <i class="fa-solid fa-file-invoice"></i> Ver Reporte Diario
           </button>
         </div>
@@ -121,50 +132,67 @@
               <th>Última actualización</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="recentProductsTable">
             <tr>
-              <td>Anillo compromiso zirconia</td>
-              <td>Anillos</td>
-              <td>$2,800</td>
-              <td>6</td>
-              <td>Hoy 14:30</td>
-            </tr>
-            <tr>
-              <td>Collar nombre personalizado</td>
-              <td>Collares</td>
-              <td>$2,500</td>
-              <td>5</td>
-              <td>Ayer</td>
-            </tr>
-            <tr>
-              <td>Reloj metálico dorado</td>
-              <td>Relojes</td>
-              <td>$5,200</td>
-              <td>4</td>
-              <td>2 días</td>
+              <td colspan="5" style="text-align: center; color: #888">
+                Cargando productos...
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </main>
 
-    <script src="../script.js"></script>
-  
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const userName = localStorage.getItem('koraLuxe_userName');
-    if (userName) {
-      const nameEl = document.getElementById('loggedUserName');
-      if (nameEl) nameEl.textContent = userName;
-    }
-    
-    // Si la pagina tiene elemento de bienvenida (ej. Dashboard) "Bienvenido, Diany"
-    const welcomeEl = document.querySelector('.welcome-row h1');
-    if (welcomeEl && userName) {
-      welcomeEl.textContent = 'Bienvenido, ' + userName;
-    }
-  });
-</script>
-</body>
+    <!-- Modal Reporte Diario -->
+    <div class="modal" id="modalReporte">
+      <div class="modal-content" style="max-width: 600px">
+        <div class="modal-header">
+          <h2>
+            <i class="fa-solid fa-chart-line"></i> Reporte Diario de Ventas
+          </h2>
+          <span class="modal-close" id="closeReporte">&times;</span>
+        </div>
+        <div id="reporteContent">
+          <p style="text-align: center; color: #666; padding: 2rem">
+            Cargando reporte...
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button
+            class="btn btn-primary"
+            onclick="window.print()"
+            style="background: var(--dark-blue)"
+          >
+            <i class="fa-solid fa-print"></i> Imprimir Reporte
+          </button>
+          <button
+            class="btn btn-danger"
+            onclick="
+              document.getElementById('modalReporte').style.display = 'none'
+            "
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
 
+    <script src="../script.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const userName = localStorage.getItem("koraLuxe_userName");
+        if (userName) {
+          const nameEl = document.getElementById("loggedUserName");
+          if (nameEl) nameEl.textContent = userName;
+        }
+
+        // Si la pagina tiene elemento de bienvenida (ej. Dashboard) "Bienvenido, Diany"
+        const welcomeEl = document.querySelector(".welcome-row h1");
+        if (welcomeEl && userName) {
+          welcomeEl.textContent = "Bienvenido, " + userName;
+        }
+      });
+    </script>
+  </body>
 </html>

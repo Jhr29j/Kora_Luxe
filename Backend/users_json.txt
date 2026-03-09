@@ -1,0 +1,20 @@
+[
+  {
+    "id": "2d0bd09b-9d64-45e0-be79-c887cbc41a6a",
+    "nombre": "Joelvis",
+    "email": "adminkoraluxe@gmail.com",
+    "rol": "admin"
+  },
+  {
+    "id": "28b42d87-0313-4a33-9bcb-481fec080b00",
+    "nombre": "Vendedor 1",
+    "email": "vendedor1@koraluxe.com",
+    "rol": "vendedor"
+  },
+  {
+    "id": "4c54ed24-972b-4bce-808d-071dda6fa312",
+    "nombre": "Meyvers",
+    "email": "meyvers12@gmail.com",
+    "rol": "vendedor"
+  }
+]

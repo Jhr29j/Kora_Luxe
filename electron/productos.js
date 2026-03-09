@@ -18,31 +18,39 @@ menuToggle.addEventListener('click', openMenu);
 closeMenuBtn.addEventListener('click', closeMenu);
 sidebarOverlay.addEventListener('click', closeMenu);
 
-// Tus productos (los que me diste)
-const products = [
-    { id: 1, name: "Antique Bangles", category: "all", mainCategory: "Brazaletes", subcategory: "Brazaletes Antiguos", price: 450.00, currency: "RD$", image: "📿", categoryFilter: "bangles" },
-    { id: 2, name: "Sparkling Tikka", category: "all", mainCategory: "Joyería", subcategory: "Tikka", price: 650.00, currency: "RD$", image: "✨", categoryFilter: "jewellery" },
-    { id: 3, name: "Silver Pendant", category: "all", mainCategory: "Joyería", subcategory: "Collares", price: 700.00, currency: "RD$", image: "🔮", categoryFilter: "jewellery" },
-    { id: 4, name: "Zircon Bangles", category: "all", mainCategory: "Brazaletes", subcategory: "Brazaletes de Zirconio", price: 489.00, currency: "RD$", image: "💫", categoryFilter: "bangles" },
-    { id: 5, name: "Collar infinito", category: "jewellery", mainCategory: "Joyería", subcategory: "Collares", price: 1500.00, currency: "RD$", image: "📿", categoryFilter: "jewellery" },
-    { id: 6, name: "Collar cruz plateada", category: "jewellery", mainCategory: "Joyería", subcategory: "Collares", price: 1700.00, currency: "RD$", image: "💎", categoryFilter: "jewellery" },
-    { id: 7, name: "Collar nombre personalizado", category: "jewellery", mainCategory: "Joyería", subcategory: "Collares Personalizados", price: 2500.00, currency: "RD$", image: "✨", categoryFilter: "jewellery" },
-    { id: 8, name: "Aretes aro grandes", category: "jewellery", mainCategory: "Joyería", subcategory: "Aretes Grandes", price: 950.00, currency: "RD$", image: "👑", categoryFilter: "jewellery" },
-    { id: 9, name: "Aretes brillantes zirconia", category: "jewellery", mainCategory: "Joyería", subcategory: "Aretes brillante", price: 1400.00, currency: "RD$", image: "👑", categoryFilter: "jewellery" },
-    { id: 10, name: "Aretes colgantes elegantes", category: "jewellery", mainCategory: "Joyería", subcategory: "Aretes Elegantes", price: 1650.00, currency: "RD$", image: "👑", categoryFilter: "jewellery" },
-    { id: 11, name: "Pulsera charms", category: "bangles", mainCategory: "Brazaletes", subcategory: "Pulseras", price: 2000.00, currency: "RD$", image: "📿", categoryFilter: "bangles" },
-    { id: 12, name: "Pulsera perlas", category: "bangles", mainCategory: "Brazaletes", subcategory: "Pulseras", price: 1300.00, currency: "RD$", image: "💫", categoryFilter: "bangles" },
-    { id: 13, name: "Pulsera magnética", category: "bangles", mainCategory: "Brazaletes", subcategory: "Pulseras", price: 1800.00, currency: "RD$", image: "🔮", categoryFilter: "bangles" },
-    { id: 14, name: "Reloj metálico dorado", category: "bangles", mainCategory: "Brazaletes", subcategory: "Relojes", price: 5200.00, currency: "RD$", image: "✨", categoryFilter: "bangles" },
-    { id: 15, name: "Reloj femenino elegante", category: "bangles", mainCategory: "Brazaletes", subcategory: "Relojes", price: 4800.00, currency: "RD$", image: "👑", categoryFilter: "bangles" },
-    { id: 16, name: "Anillo compromiso zirconia", category: "rings", mainCategory: "Anillos", subcategory: "Anillos de compromiso", price: 2800.00, currency: "RD$", image: "⚫", categoryFilter: "rings" },
-    { id: 17, name: "Anillo triple banda", category: "rings", mainCategory: "Anillos", subcategory: "Anillos", price: 1600.00, currency: "RD$", image: "🌈", categoryFilter: "rings" },
-    { id: 18, name: "Anillo ajustable minimalista", category: "rings", mainCategory: "Anillos", subcategory: "Anillos", price: 900.00, currency: "RD$", image: "💛", categoryFilter: "rings" },
-    { id: 19, name: "Set collar y aretes corazón", category: "conjunto", mainCategory: "Conjuntos", subcategory: "Conjunto de Corazon", price: 3200.00, currency: "RD$", image: "⚙️", categoryFilter: "conjunto" },
-    { id: 20, name: "Set joyería perla", category: "conjunto", mainCategory: "Conjuntos", subcategory: "Conjunto", price: 3900.00, currency: "RD$", image: "⚙️", categoryFilter: "conjunto" },
-    { id: 21, name: "Broche decorativo elegante", category: "premium", mainCategory: "premium", subcategory: "Broche Elegante", price: 1100.00, currency: "RD$", image: "⚙️", categoryFilter: "premium" },
-    { id: 22, name: "Set joyería perla", category: "premium", mainCategory: "premium", subcategory: "Joyeria", price: 2600.00, currency: "RD$", image: "⚙️", categoryFilter: "premium" }
-];
+let products = [];
+
+async function fetchProducts() {
+    try {
+        const response = await fetch('http://localhost:5000/api/productos');
+        if (!response.ok) throw new Error('Error al obtener productos');
+        const dbProducts = await response.json();
+        
+        // Mapear el formato de la Base de Datos al formato que el HTML necesita
+        products = dbProducts.map(p => ({
+            id: p.id,
+            name: p.nombre,
+            category: "all",
+            mainCategory: p.categoria || "Joyería",
+            subcategory: p.categoria || "Accesorio",
+            categoryFilter: (p.categoria || "").toLowerCase(),
+            price: Number(p.precio) || 0,
+            currency: "RD$",
+            image: "💎",
+            stock: p.stock
+        }));
+
+        // Llamar a displayProducts solo cuando los datos hayan cargado
+        displayProducts();
+    } catch (error) {
+        console.error('Error fetching productos:', error);
+        productsGrid.innerHTML = `
+            <div class="no-results">
+                <h3>Error de conexión. ¿El servidor está encendido?</h3>
+            </div>
+        `;
+    }
+}
 
 // Estado actual
 let currentCategory = 'all';
@@ -123,7 +131,7 @@ function clearSearch() {
 }
 
 // Inicializar
-displayProducts();
+fetchProducts();
 
 // Cerrar menú con Escape
 document.addEventListener('keydown', e => {

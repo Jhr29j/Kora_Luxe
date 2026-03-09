@@ -23,19 +23,18 @@ password = "Vendedor123"   # texto plano (se hashea en SQL)
 rol = "vendedor"
 
 # ===============================
-# Insertar usuario (HASH EN BD)
+# Insertar usuario en BD (TEXTO PLANO)
 # ===============================
-query = """
-insert into users (nombre, email, password, rol)
-values (%s, %s, crypt(%s, gen_salt('bf')), %s)
-"""
+data = {
+    "nombre": nombre,
+    "email": email,
+    "password": password,
+    "rol": rol,
+    "activo": True
+}
 
-supabase.postgrest.rpc(
-    "execute_sql",
-    {
-        "query": query,
-        "params": [nombre, email, password, rol]
-    }
-)
-
-print("✅ Usuario creado correctamente")
+try:
+    response = supabase.table("users").insert(data).execute()
+    print("✅ Usuario creado correctamente:", response.data[0]['email'])
+except Exception as e:
+    print("❌ Error al crear usuario:", str(e))

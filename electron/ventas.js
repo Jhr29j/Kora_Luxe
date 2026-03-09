@@ -18,17 +18,33 @@ menuToggle.addEventListener('click', openMenu);
 closeMenuBtn.addEventListener('click', closeMenu);
 sidebarOverlay.addEventListener('click', closeMenu);
 
-// Simulación de productos
-const products = [
-  { id: 1, name: "Anillo compromiso zirconia", price: 2800, category: "Anillos", image: "💍" },
-  { id: 2, name: "Collar infinito", price: 1500, category: "Collares", image: "📿" },
-  { id: 3, name: "Pulsera charms", price: 2000, category: "Pulseras", image: "⌚" },
-  { id: 4, name: "Aretes aro grandes", price: 950, category: "Aretes", image: "👂" },
-  // Agrega más si quieres...
-];
-
+// ── Productos desde API ────────────────────────────────────────────
+let products = [];
 let cart = [];
 let selectedPayment = "Ninguno seleccionado";
+
+async function loadProducts() {
+  try {
+    const res = await fetch('http://localhost:5000/api/productos');
+    if (!res.ok) throw new Error('Error al cargar productos');
+    const dbProducts = await res.json();
+
+    // Mapear campos de la BD al formato del carrito
+    products = dbProducts.map(p => ({
+      id: p.id,
+      name: p.nombre,
+      price: Number(p.precio) || 0,
+      category: p.categoria || 'Otro',
+      stock: p.stock,
+      image: '💎'
+    }));
+
+    renderProducts();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('productList').innerHTML = '<p>Error al cargar productos. ¿Está el servidor encendido?</p>';
+  }
+}
 
 // Renderizar productos
 function renderProducts() {
@@ -39,7 +55,7 @@ function renderProducts() {
       <div class="product-info">
         <div class="product-name">${p.name}</div>
         <div class="product-price">RD$ ${p.price.toFixed(2)}</div>
-        <button class="product-add" onclick="addToCart(${p.id})">
+        <button class="product-add" onclick="addToCart('${p.id}')">
           <i class="fa-solid fa-plus"></i> Añadir
         </button>
       </div>
@@ -49,8 +65,8 @@ function renderProducts() {
 
 // Añadir al carrito
 function addToCart(id) {
-  const product = products.find(p => p.id === id);
-  const existing = cart.find(item => item.id === id);
+  const product = products.find(p => String(p.id) === String(id));
+  const existing = cart.find(item => String(item.id) === String(id));
   
   if (existing) {
     existing.qty += 1;
@@ -63,10 +79,10 @@ function addToCart(id) {
 
 // Cambiar cantidad
 function changeQty(id, delta) {
-  const item = cart.find(i => i.id === id);
+  const item = cart.find(i => String(i.id) === String(id));
   if (item) {
     item.qty = Math.max(1, item.qty + delta);
-    if (item.qty === 0) cart = cart.filter(i => i.id !== id);
+    if (item.qty === 0) cart = cart.filter(i => String(i.id) !== String(id));
     renderCart();
   }
 }
@@ -81,9 +97,9 @@ function renderCart() {
         <div class="cart-item-price">RD$ ${item.price.toFixed(2)} x ${item.qty}</div>
       </div>
       <div class="cart-item-qty">
-        <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
+        <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
         <span>${item.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+        <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
       </div>
       <div class="cart-item-total">RD$ ${(item.price * item.qty).toFixed(2)}</div>
     </div>
@@ -109,8 +125,8 @@ document.querySelectorAll('.payment-btn').forEach(btn => {
   });
 });
 
-// Cerrar venta (simulado)
-document.getElementById('finishSale').addEventListener('click', () => {
+// Cerrar venta (con API)
+document.getElementById('finishSale').addEventListener('click', async () => {
   if (cart.length === 0) {
     alert("El carrito está vacío.");
     return;
@@ -120,19 +136,45 @@ document.getElementById('finishSale').addEventListener('click', () => {
     return;
   }
 
-  const total = document.getElementById('total').textContent;
-  alert(`Venta cerrada exitosamente!\nTotal: ${total}\nMétodo: ${selectedPayment}\nGracias por tu compra.`);
+  const totalEl = document.getElementById('total').textContent;
+  const totalAmount = parseFloat(totalEl.replace('RD$', '').trim().replaceAll(',',''));
 
-  // Limpiar carrito después de cerrar
-  cart = [];
-  selectedPayment = "Ninguno seleccionado";
-  document.getElementById('selectedPayment').textContent = selectedPayment;
-  document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
-  renderCart();
+  const saleData = {
+    metodo_pago: selectedPayment,
+    total: totalAmount,
+    items: cart.map(item => ({
+      product_id: item.id,
+      cantidad: item.qty,
+      precio_unitario: item.price
+    }))
+  };
+
+  try {
+    const res = await fetch('http://localhost:5000/api/ventas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(saleData)
+    });
+
+    if (res.ok) {
+      alert(`¡Venta registrada!\nTotal: ${totalEl}\nMétodo: ${selectedPayment}`);
+      cart = [];
+      selectedPayment = "Ninguno seleccionado";
+      document.getElementById('selectedPayment').textContent = selectedPayment;
+      document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+      renderCart();
+    } else {
+      const err = await res.json();
+      alert(`Error al registrar: ${err.detail}`);
+    }
+  } catch(e) {
+    alert('Error al conectar con el servidor.');
+    console.error(e);
+  }
 });
 
 // Inicializar
-renderProducts();
+loadProducts();
 renderCart();
 
 // Cerrar menú con Escape
