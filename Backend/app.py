@@ -167,11 +167,28 @@ async def get_reporte_diario():
 
         res = await run_query(
             lambda: supabase.table("sales")
-                .select("total, metodo_pago, created_at")
+                .select("id, total, metodo_pago, created_at, nombre_comprador")
                 .gte("created_at", f"{today}T00:00:00")
                 .execute()
         )
         sales_today = res.data if res.data else []
+
+        # Para cada venta, buscar el primer producto vendido
+        for sale in sales_today:
+            try:
+                det_res = await run_query(
+                    lambda s=sale: supabase.table("sale_details")
+                        .select("product_id, products(nombre)")
+                        .eq("sale_id", s["id"])
+                        .limit(1)
+                        .execute()
+                )
+                if det_res.data and det_res.data[0].get("products"):
+                    sale["nombre_producto"] = det_res.data[0]["products"]["nombre"]
+                else:
+                    sale["nombre_producto"] = "Venta General"
+            except Exception:
+                sale["nombre_producto"] = "Venta General"
 
         total_venta   = sum(s["total"] for s in sales_today)
         conteo_ventas = len(sales_today)
@@ -345,20 +362,25 @@ class SaleItem(BaseModel):
     precio_unitario: float
 
 class VentaRequest(BaseModel):
-    user_id:     int
-    metodo_pago: str
-    total:       float
-    items:       list[SaleItem]
+    user_id:          int
+    metodo_pago:      str
+    total:            float
+    items:            list[SaleItem]
+    nombre_comprador: Optional[str] = None
 
 @app.post("/api/ventas")
 async def create_venta(body: VentaRequest):
     try:
+        sale_data = {
+            "user_id":     body.user_id,
+            "total":       body.total,
+            "metodo_pago": body.metodo_pago
+        }
+        if body.nombre_comprador:
+            sale_data["nombre_comprador"] = body.nombre_comprador
+
         sale_response = await run_query(
-            lambda: supabase.table("sales").insert({
-                "user_id":     body.user_id,
-                "total":       body.total,
-                "metodo_pago": body.metodo_pago
-            }).execute()
+            lambda: supabase.table("sales").insert(sale_data).execute()
         )
         sale_id = sale_response.data[0]['id']
 

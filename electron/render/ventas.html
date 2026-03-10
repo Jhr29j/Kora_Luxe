@@ -107,6 +107,11 @@
             </div>
           </div>
           <div class="payment-methods">
+            <div style="width:100%;margin-bottom:1rem;">
+              <label style="font-weight:600;display:block;margin-bottom:6px;color:#1a3263;">Nombre del comprador</label>
+              <input type="text" id="buyerName" placeholder="Consumidor Final"
+                style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:1rem;outline:none;transition:border-color 0.2s;" />
+            </div>
             <button class="payment-btn" data-method="Efectivo">Efectivo</button>
             <button class="payment-btn" data-method="Tarjeta">Tarjeta</button>
             <button class="payment-btn" data-method="Transferencia">
@@ -123,6 +128,7 @@
       </div>
     </main>
 
+    <script src="../shared-theme.js"></script>
     <script src="../cache.js"></script>
     <script src="../ventas.js"></script>
     <script>

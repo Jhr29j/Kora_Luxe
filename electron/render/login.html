@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -39,12 +39,21 @@
 
           <div class="form-group">
             <label for="password">Contraseña</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Escribe una contraseña"
-              required
-            />
+            <div style="position:relative;display:flex;align-items:center;">
+              <input
+                type="password"
+                id="password"
+                placeholder="Escribe una contraseña"
+                required
+                style="flex:1;padding-right:42px;"
+              />
+              <button
+                type="button"
+                id="togglePassword"
+                title="Mostrar/ocultar contraseña"
+                style="position:absolute;right:12px;background:none;border:none;cursor:pointer;color:#888;font-size:1rem;padding:0;"
+              ><i class="fa-solid fa-eye"></i></button>
+            </div>
           </div>
 
           <button type="submit" class="btn-primary">Iniciar Sesión</button>

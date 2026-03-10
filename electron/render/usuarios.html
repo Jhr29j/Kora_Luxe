@@ -155,6 +155,9 @@
                 <option value="admin">Administrador</option>
                 <option value="vendedor">Vendedor</option>
               </select>
+              <small id="rolProtectedNote" style="color:#ef4444;margin-top:4px;display:none;">
+                <i class="fa-solid fa-lock"></i> No puedes cambiar el rol de otro administrador.
+              </small>
             </div>
 
             <div class="modal-field">
@@ -180,6 +183,7 @@
       </div>
     </main>
 
+    <script src="../shared-theme.js"></script>
     <script src="../cache.js"></script>
     <script src="../usuarios.js"></script>
 

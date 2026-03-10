@@ -42,8 +42,13 @@ function formatDate(isoString) {
 
 function renderUsuarios(usuarios) {
   const tbody = document.getElementById('usersTableBody');
-  tbody.innerHTML = usuarios.map(u => `
-    <tr data-id="${u.id}" data-nombre="${u.nombre}" data-email="${u.email}" data-rol="${u.rol}" data-activo="${u.activo}">
+  const myRol = localStorage.getItem('koraLuxe_userRol');
+  const myId  = parseInt(localStorage.getItem('koraLuxe_userId'));
+  tbody.innerHTML = usuarios.map(u => {
+    // Si yo soy admin y el otro también es admin (y no es mi propio usuario), no puedo editar su rol
+    const isOtherAdmin = myRol === 'admin' && u.rol === 'admin' && u.id !== myId;
+    return `
+    <tr data-id="${u.id}" data-nombre="${u.nombre}" data-email="${u.email}" data-rol="${u.rol}" data-activo="${u.activo}" data-is-admin="${isOtherAdmin}">
       <td>${u.nombre}</td>
       <td>${u.email}</td>
       <td style="text-transform:capitalize;">${u.rol}</td>
@@ -53,8 +58,8 @@ function renderUsuarios(usuarios) {
         <button class="action-btn action-edit" onclick="openModal(true, '${u.id}')">Editar</button>
         <button class="action-btn action-toggle" onclick="toggleActivo('${u.id}', ${u.activo})">${u.activo ? 'Desactivar' : 'Activar'}</button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 async function toggleActivo(id, currentActivo) {
@@ -89,13 +94,26 @@ function openModal(isEdit = false, userId = null) {
   pwdInput.required = !isEdit;
   pwdInput.placeholder = isEdit ? 'Dejar vacío para no cambiar' : 'Contraseña';
 
+  const rolSelect = document.getElementById('rol');
+  const rolNote   = document.getElementById('rolProtectedNote');
+
+  // Resetear estado del rol
+  rolSelect.disabled = false;
+  if (rolNote) rolNote.style.display = 'none';
+
   if (isEdit && userId) {
     const row = document.querySelector(`tr[data-id="${userId}"]`);
     document.getElementById('editId').value   = userId;
     document.getElementById('nombre').value   = row.dataset.nombre;
     document.getElementById('email').value    = row.dataset.email;
-    document.getElementById('rol').value      = row.dataset.rol;
+    rolSelect.value                           = row.dataset.rol;
     document.getElementById('estado').value   = row.dataset.activo === 'true' ? 'activo' : 'inactivo';
+
+    // Proteger rol si el usuario editado es otro admin
+    if (row.dataset.isAdmin === 'true') {
+      rolSelect.disabled = true;
+      if (rolNote) rolNote.style.display = 'block';
+    }
   }
   userModal.style.display = 'flex';
 }

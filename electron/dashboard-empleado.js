@@ -130,12 +130,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (data && data.ventas && data.ventas.length > 0) {
       tbody.innerHTML = data.ventas.map(v => {
         const hora = v.created_at
-          ? new Date(v.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          ? new Date(v.created_at).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Santo_Domingo' })
           : '--:--';
+        const comprador = v.nombre_comprador || 'Consumidor Final';
+        const producto  = v.nombre_producto  || 'Venta General';
         return `<tr>
           <td>${hora}</td>
-          <td>Consumidor Final</td>
-          <td>Venta General</td>
+          <td>${comprador}</td>
+          <td>${producto}</td>
           <td>RD$ ${Number(v.total).toLocaleString()}</td>
           <td>${v.metodo_pago}</td>
         </tr>`;

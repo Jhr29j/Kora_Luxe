@@ -185,10 +185,13 @@ document.getElementById('finishSale').addEventListener('click', async () => {
     return;
   }
 
+  const buyerName = (document.getElementById('buyerName')?.value || '').trim();
+
   const saleData = {
-    user_id:     userId,
-    metodo_pago: selectedPayment,
-    total:       totalAmount,
+    user_id:          userId,
+    metodo_pago:      selectedPayment,
+    total:            totalAmount,
+    nombre_comprador: buyerName || null,
     items: cart.map(item => ({
       product_id:      item.id,
       cantidad:        parseInt(item.qty),

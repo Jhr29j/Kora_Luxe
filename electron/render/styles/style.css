@@ -59,6 +59,12 @@ tr:hover {
   cursor: pointer;
   font-size: 0.9rem;
   color: white;
+  font-weight: 600;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.action-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
 .action-edit {
@@ -73,6 +79,12 @@ tr:hover {
 }
 .action-delete {
   background: var(--danger);
+}
+
+/* Stock bajo */
+.low-stock {
+  color: #ef4444;
+  font-weight: 700;
 }
 
 /* Modal */
@@ -184,6 +196,11 @@ tr:hover {
   --danger: #ef4444;
 }
 
+/* Dark Mode — extended coverage */
+body.dark-theme * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
 body.dark-theme {
   --bg: #0f172a;
   --card: #1e293b;
@@ -193,15 +210,33 @@ body.dark-theme {
   --overlay-bg: rgba(15, 23, 42, 0.98);
 }
 
+body.dark-theme .low-stock {
+  color: #ff6b6b; /* Brighter red for dark mode */
+}
+
 body.dark-theme h1,
 body.dark-theme h2,
 body.dark-theme h3 {
   color: #fff;
 }
 
+body.dark-theme header {
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+}
+
 body.dark-theme table th {
   background: #0f172a;
-  color: #fff;
+  color: #cbd5e1;
+}
+
+body.dark-theme table td {
+  color: #f1f5f9;
+  border-color: #334155;
+}
+
+body.dark-theme tr:hover {
+  background: #1e293b;
 }
 
 body.dark-theme .stat-card h3 {
@@ -216,6 +251,10 @@ body.dark-theme .modal-content {
   background: #1e293b;
 }
 
+body.dark-theme .modal-header h2 {
+  color: #f1f5f9;
+}
+
 body.dark-theme .modal-field label {
   color: #f1f5f9;
 }
@@ -225,6 +264,33 @@ body.dark-theme .modal-field select {
   background: #0f172a;
   color: #fff;
   border-color: #334155;
+}
+
+body.dark-theme .users-table,
+body.dark-theme .quick-actions,
+body.dark-theme .recent-products,
+body.dark-theme .stat-card {
+  background: var(--card);
+  border-color: #334155;
+}
+
+body.dark-theme .sidebar-menu {
+  background: #020617;
+}
+
+body.dark-theme .btn {
+  border-color: #334155;
+}
+
+body.dark-theme input,
+body.dark-theme select {
+  background: #1e293b;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+
+body.dark-theme .content {
+  background: var(--bg);
 }
 
 * {
@@ -265,8 +331,7 @@ header {
 }
 
 .search-container {
-  flex: 1;
-  max-width: 450px;
+  width: 350px;
   margin: 0;
   position: relative;
 }

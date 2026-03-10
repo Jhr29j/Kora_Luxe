@@ -83,7 +83,7 @@ function renderTable(products) {
       <td>${p.nombre}</td>
       <td>${p.categoria || '—'}</td>
       <td class="gold">RD$ ${Number(p.precio).toLocaleString('es-DO', { minimumFractionDigits: 2 })}</td>
-      <td>${p.stock}</td>
+      <td class="${p.stock < 10 ? 'low-stock' : ''}">${p.stock}</td>
       <td>
         <button class="btn btn-edit" onclick="openModal('edit', '${p.id}')"><i class="fa-solid fa-pen"></i></button>
         <button class="btn btn-delete" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>

@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -7,6 +7,7 @@ function createWindow() {
     height: 1200,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
       preload: path.join(__dirname, 'electron', 'preload.js')
     }
   });
@@ -14,6 +15,10 @@ function createWindow() {
   win.setMenu(null);
 
   win.loadFile(path.join(__dirname, 'electron', 'render', 'login.html'));
+
+  ipcMain.on('print-page', (event) => {
+    event.sender.print({ silent: false, printBackground: true, color: true });
+  });
 }
 
 app.whenReady().then(createWindow);

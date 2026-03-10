@@ -15,33 +15,40 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.appendChild(errorMsg);
   }
 
+  // Toggle de contraseña
+  document.getElementById('togglePassword')?.addEventListener('click', function() {
+    const icon = this.querySelector('i');
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+      passwordInput.type = 'password';
+      icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+  });
+
   loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Evita que la página se recargue
+    e.preventDefault();
 
     const email = emailInput.value;
     const password = passwordInput.value;
     
-    // Limpiar mensaje de error
     errorMsg.textContent = '';
 
     try {
       const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Mostrar error del backend
         errorMsg.textContent = data.error || 'Error al iniciar sesión';
         return;
       }
 
-      // Login exitoso, guardar datos y verificar el rol
       const userRol = data.user.rol;
       const userName = data.user.nombre;
       
