@@ -1,80 +1,92 @@
-/**
- * KoraCache - Utilidad de caché para Kora Luxe
- * Guarda datos en localStorage con tiempo de expiración.
- */
 const KoraCache = {
-  // Duración por defecto: 5 minutos
-  DEFAULT_TTL: 5 * 60 * 1000,
 
-  /**
-   * Obtiene un dato del caché. Si no existe o expiró, ejecuta fetchFn.
-   * @param {string} key - Clave del caché
-   * @param {function} fetchFn - Función async que retorna los datos frescos
-   * @param {number} ttl - Tiempo de vida en ms
-   */
-  async get(key, fetchFn, ttl = this.DEFAULT_TTL) {
-    const cached = this.peek(key);
-    
-    if (cached) {
-      // Si el dato es "stale" (viejo) pero existe, lo devolvemos 
-      // y disparamos un refresh en el background para la próxima vez
-      const now = Date.now();
-      const item = JSON.parse(localStorage.getItem(`koraCache_${key}`));
-      if (now > item.expiry) {
-        console.log(`[Cache] ${key} expirado. Refrescando en background...`);
-        this._refresh(key, fetchFn, ttl);
-      }
-      return cached;
-    }
+  // TTLs por clave (ms). Si la clave no está aquí, usa DEFAULT_TTL.
+  TTL_MAP: {
+    'dashboard':   30  * 1000,   // 30 seg — datos en tiempo real
+    'reporte-hoy': 30  * 1000,   // 30 seg — ventas del día
+    'productos':   2   * 60 * 1000,  // 2 min
+    'usuarios':    2   * 60 * 1000,  // 2 min
+    'configuracion': 5 * 60 * 1000, // 5 min
+  },
 
-    // Si no hay nada, fetch obligatorio
-    console.log(`[Cache] ${key} no encontrado. Fetching...`);
-    return await this._refresh(key, fetchFn, ttl);
+  DEFAULT_TTL: 60 * 1000, // 1 min para claves dinámicas (reporte-hoy-X, ventas-mes-X)
+
+  _getTTL(key) {
+    // Claves dinámicas: reporte-hoy-2, ventas-mes-3, etc.
+    if (key.startsWith('reporte-hoy-')) return 30 * 1000;
+    if (key.startsWith('ventas-mes-'))  return 60 * 1000;
+    return this.TTL_MAP[key] || this.DEFAULT_TTL;
   },
 
   /**
-   * Mira el caché sin disparar fetch. Útil para carga instantánea UI.
+   * Obtiene dato del caché. Si no existe O expiró → fetch fresco.
+   * Nunca devuelve datos expirados (para que cambios en BD se reflejen siempre).
+   */
+  async get(key, fetchFn) {
+    const ttl = this._getTTL(key);
+    const raw = localStorage.getItem(`koraCache_${key}`);
+
+    if (raw) {
+      try {
+        const item = JSON.parse(raw);
+        if (Date.now() < item.expiry) {
+          // Dato fresco → devolver directo
+          return item.value;
+        }
+        // Expirado → borrar y fetch fresco
+        console.log(`[Cache] ${key} expirado → fetch fresco`);
+        localStorage.removeItem(`koraCache_${key}`);
+      } catch (e) {
+        localStorage.removeItem(`koraCache_${key}`);
+      }
+    }
+
+    // No hay dato o expiró → fetch obligatorio
+    console.log(`[Cache] ${key} → fetching...`);
+    try {
+      const value = await fetchFn();
+      if (value !== null && value !== undefined) {
+        this._save(key, value, ttl);
+      }
+      return value;
+    } catch (e) {
+      console.error(`[Cache] Error fetching ${key}:`, e);
+      return null;
+    }
+  },
+
+  /**
+   * Peek: solo devuelve si existe Y está fresco. Nunca devuelve expirado.
    */
   peek(key) {
-    const data = localStorage.getItem(`koraCache_${key}`);
-    if (!data) return null;
+    const raw = localStorage.getItem(`koraCache_${key}`);
+    if (!raw) return null;
     try {
-      const item = JSON.parse(data);
-      // Retornamos el dato aunque esté expirado si queremos "optimismo"
-      // La lógica de get() se encarga de refrescarlo.
-      return item.value;
+      const item = JSON.parse(raw);
+      if (Date.now() < item.expiry) return item.value;
+      // Expirado → borrar silenciosamente
+      localStorage.removeItem(`koraCache_${key}`);
+      return null;
     } catch (e) {
       return null;
     }
   },
 
-  async _refresh(key, fetchFn, ttl) {
-    try {
-      const value = await fetchFn();
-      this.set(key, value, ttl);
-      return value;
-    } catch (e) {
-      console.error(`[Cache] Error refrescando ${key}:`, e);
-      // Si falla el fetch, intentamos devolver lo que había aunque sea viejo
-      return this.peek(key);
-    }
-  },
-
-  set(key, value, ttl = this.DEFAULT_TTL) {
-    const item = {
-      value: value,
-      expiry: Date.now() + ttl
-    };
+  _save(key, value, ttl) {
+    const item = { value, expiry: Date.now() + ttl };
     try {
       localStorage.setItem(`koraCache_${key}`, JSON.stringify(item));
     } catch (e) {
-      console.warn("[Cache] LocalStorage lleno o error al guardar:", e);
-      // Si el localStorage está lleno, borramos todo lo de KoraCache e intentamos de nuevo
+      console.warn('[Cache] localStorage lleno, limpiando...');
       this.clearAll();
       try {
         localStorage.setItem(`koraCache_${key}`, JSON.stringify(item));
       } catch (e2) {}
     }
+  },
+
+  set(key, value) {
+    this._save(key, value, this._getTTL(key));
   },
 
   clear(key) {
@@ -83,9 +95,7 @@ const KoraCache = {
 
   clearAll() {
     Object.keys(localStorage).forEach(k => {
-      if (k.startsWith('koraCache_')) {
-        localStorage.removeItem(k);
-      }
+      if (k.startsWith('koraCache_')) localStorage.removeItem(k);
     });
   }
 };

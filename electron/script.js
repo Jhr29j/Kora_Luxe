@@ -170,3 +170,67 @@ function _renderReporte(data) {
     </div>
   `;
 }
+
+// ── Descargar PDF del Reporte ─────────────────────────────────────────
+async function descargarPDF() {
+  const btn = document.getElementById('btnDescargarPDF');
+  const original = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+  btn.disabled = true;
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const content = document.getElementById('reporteContent');
+
+    const canvas = await html2canvas(content, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const margin = 15;
+
+    // Encabezado azul Kora Luxe
+    pdf.setFillColor(26, 50, 99);
+    pdf.rect(0, 0, pageW, 22, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('KORA LUXE JOYERÍA', margin, 13);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    const fecha = new Date().toLocaleDateString('es-DO', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    pdf.text('Reporte Diario — ' + fecha, pageW - margin, 13, { align: 'right' });
+
+    // Contenido del modal como imagen
+    const imgW  = pageW - margin * 2;
+    const imgH  = (canvas.height * imgW) / canvas.width;
+    const maxH  = pageH - 28 - margin;
+    pdf.addImage(imgData, 'PNG', margin, 28, imgW, imgH > maxH ? maxH : imgH);
+
+    // Pie de página
+    pdf.setFillColor(248, 249, 252);
+    pdf.rect(0, pageH - 12, pageW, 12, 'F');
+    pdf.setTextColor(100, 116, 139);
+    pdf.setFontSize(8);
+    pdf.text('Generado por Kora Luxe POS', margin, pageH - 5);
+    pdf.text('Página 1 de 1', pageW - margin, pageH - 5, { align: 'right' });
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    pdf.save('reporte-diario-' + dateStr + '.pdf');
+
+  } catch (e) {
+    console.error('Error generando PDF:', e);
+    alert('Error al generar el PDF. Por favor intenta de nuevo.');
+  } finally {
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+}

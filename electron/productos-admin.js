@@ -13,6 +13,7 @@ sidebarOverlay.addEventListener('click', closeMenu);
 let allProducts = [];
 let currentEditId = null;
 let selectedImageBase64 = null;
+let removeImageFlag = false;
 
 async function loadProducts() {
   // Mostrar caché inmediatamente si existe
@@ -107,12 +108,14 @@ document.querySelector('header .search-container input')?.addEventListener('inpu
 function openModal(mode, productId = null) {
   currentEditId = productId;
   selectedImageBase64 = null;
+  removeImageFlag = false;
   document.getElementById('modalTitle').textContent = mode === 'add' ? 'Nuevo Producto' : 'Editar Producto';
 
   const previewContainer = document.getElementById('imagePreviewContainer');
   const previewImg       = document.getElementById('imagePreview');
   const fileNameDisplay  = document.getElementById('fileNameDisplay');
   const pImagen          = document.getElementById('pImagen');
+  const removeBtn        = document.getElementById('removeImageBtn');
 
   if (pImagen) pImagen.value = '';
   fileNameDisplay.textContent = 'Ningún archivo seleccionado';
@@ -132,8 +135,13 @@ function openModal(mode, productId = null) {
         previewImg.src = p.imagen_url;
         previewContainer.style.display = 'block';
         fileNameDisplay.textContent = 'Imagen actual';
+        removeBtn.style.display = 'block';
+      } else {
+        removeBtn.style.display = 'none';
       }
     }
+  } else {
+    removeBtn.style.display = 'none';
   }
   document.getElementById('productModal').style.display = 'flex';
 }
@@ -142,6 +150,7 @@ function closeModal() {
   document.getElementById('productModal').style.display = 'none';
   currentEditId = null;
   selectedImageBase64 = null;
+  removeImageFlag = false;
 }
 
 window.onclick = function(e) { if (e.target.classList.contains('modal')) closeModal(); };
@@ -153,6 +162,7 @@ document.getElementById('pImagen')?.addEventListener('change', function() {
   const previewImg       = document.getElementById('imagePreview');
   if (!file) { if (!selectedImageBase64) { fileNameDisplay.textContent = 'Ningún archivo seleccionado'; previewContainer.style.display = 'none'; } return; }
   fileNameDisplay.textContent = file.name;
+  removeImageFlag = false;
   const reader = new FileReader();
   reader.onload = (e) => { selectedImageBase64 = e.target.result; previewImg.src = selectedImageBase64; previewContainer.style.display = 'block'; };
   reader.readAsDataURL(file);
@@ -160,6 +170,7 @@ document.getElementById('pImagen')?.addEventListener('change', function() {
 
 document.getElementById('removeImageBtn')?.addEventListener('click', () => {
   selectedImageBase64 = null;
+  removeImageFlag = true;
   const pImagen = document.getElementById('pImagen');
   if (pImagen) pImagen.value = '';
   document.getElementById('fileNameDisplay').textContent    = 'Ningún archivo seleccionado';
@@ -176,7 +187,12 @@ document.getElementById('productForm')?.addEventListener('submit', async (e) => 
     stock:     parseInt(document.getElementById('pStock').value),
     activo:    document.getElementById('pActivo').value === 'true',
   };
-  if (selectedImageBase64) data.imagen_url = selectedImageBase64;
+  
+  if (selectedImageBase64) {
+    data.imagen_url = selectedImageBase64;
+  } else if (removeImageFlag) {
+    data.imagen_url = null;
+  }
 
   try {
     const method = currentEditId ? 'PUT' : 'POST';

@@ -13,7 +13,6 @@ sidebarOverlay.addEventListener('click', closeMenu);
 let allUsuarios = [];
 
 async function loadUsuarios() {
-  // Mostrar caché inmediatamente si existe
   const cached = KoraCache.peek('usuarios');
   if (cached) { allUsuarios = cached; renderUsuarios(allUsuarios); }
 
@@ -42,21 +41,28 @@ function formatDate(isoString) {
 
 function renderUsuarios(usuarios) {
   const tbody = document.getElementById('usersTableBody');
-  const myRol = localStorage.getItem('koraLuxe_userRol');
   const myId  = parseInt(localStorage.getItem('koraLuxe_userId'));
   tbody.innerHTML = usuarios.map(u => {
-    // Si yo soy admin y el otro también es admin (y no es mi propio usuario), no puedo editar su rol
-    const isOtherAdmin = myRol === 'admin' && u.rol === 'admin' && u.id !== myId;
+    const isSelf    = u.id === myId;
+    const isAdmin   = u.rol === 'admin';
+    const canDelete = !isAdmin && !isSelf;
+
+    const toggleDisabled = isAdmin ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : '';
+    const deleteBtn = canDelete
+      ? `<button class="action-btn action-delete" onclick="eliminarUsuario(${u.id}, '${u.nombre}')">Eliminar</button>`
+      : '';
+
     return `
-    <tr data-id="${u.id}" data-nombre="${u.nombre}" data-email="${u.email}" data-rol="${u.rol}" data-activo="${u.activo}" data-is-admin="${isOtherAdmin}">
-      <td>${u.nombre}</td>
+    <tr data-id="${u.id}" data-nombre="${u.nombre}" data-email="${u.email}" data-rol="${u.rol}" data-activo="${u.activo}" data-is-protected="${isAdmin}" data-is-self="${isSelf}">
+      <td>${u.nombre}${isSelf ? ' <span style="font-size:0.75rem;color:#10b981;font-weight:600;">(tú)</span>' : ''}</td>
       <td>${u.email}</td>
       <td style="text-transform:capitalize;">${u.rol}</td>
       <td>${formatDate(u.created_at)}</td>
       <td><span class="${u.activo ? 'status-active' : 'status-inactive'}">${u.activo ? 'activo' : 'inactivo'}</span></td>
       <td class="user-actions">
-        <button class="action-btn action-edit" onclick="openModal(true, '${u.id}')">Editar</button>
-        <button class="action-btn action-toggle" onclick="toggleActivo('${u.id}', ${u.activo})">${u.activo ? 'Desactivar' : 'Activar'}</button>
+        <button class="action-btn action-edit" onclick="openModal(true, ${u.id})">Editar</button>
+        <button class="action-btn action-toggle ${u.activo ? 'active' : 'inactive'}" onclick="toggleActivo(${u.id}, ${u.activo})" ${toggleDisabled}>${u.activo ? 'Desactivar' : 'Activar'}</button>
+        ${deleteBtn}
       </td>
     </tr>`;
   }).join('');
@@ -70,7 +76,7 @@ async function toggleActivo(id, currentActivo) {
       body: JSON.stringify({ activo: !currentActivo })
     });
     if (res.ok) {
-      KoraCache.clear('usuarios'); // Invalidar caché para recargar
+      KoraCache.clear('usuarios');
       loadUsuarios();
     } else {
       const e = await res.json();
@@ -79,11 +85,28 @@ async function toggleActivo(id, currentActivo) {
   } catch(e) { console.error(e); }
 }
 
+async function eliminarUsuario(id, nombre) {
+  if (!confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.`)) return;
+  try {
+    const res = await fetch(`http://localhost:5000/api/usuarios/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      KoraCache.clear('usuarios');
+      loadUsuarios();
+    } else {
+      const err = await res.json();
+      alert(`Error: ${err.detail}`);
+    }
+  } catch (e) {
+    alert('Error al conectar con el servidor.');
+    console.error(e);
+  }
+}
+
 // Modal
-const userModal    = document.getElementById('userModal');
-const modalTitle   = document.getElementById('modalTitle');
+const userModal     = document.getElementById('userModal');
+const modalTitle    = document.getElementById('modalTitle');
 const passwordField = document.getElementById('passwordField');
-const userForm     = document.getElementById('userForm');
+const userForm      = document.getElementById('userForm');
 
 function openModal(isEdit = false, userId = null) {
   userForm.reset();
@@ -95,24 +118,38 @@ function openModal(isEdit = false, userId = null) {
   pwdInput.placeholder = isEdit ? 'Dejar vacío para no cambiar' : 'Contraseña';
 
   const rolSelect = document.getElementById('rol');
-  const rolNote   = document.getElementById('rolProtectedNote');
+  const estadoSelect = document.getElementById('estado');
+  const rolNote = document.getElementById('rolProtectedNote');
 
-  // Resetear estado del rol
-  rolSelect.disabled = false;
+  rolSelect.disabled    = false;
+  estadoSelect.disabled = false;
   if (rolNote) rolNote.style.display = 'none';
 
   if (isEdit && userId) {
     const row = document.querySelector(`tr[data-id="${userId}"]`);
-    document.getElementById('editId').value   = userId;
-    document.getElementById('nombre').value   = row.dataset.nombre;
-    document.getElementById('email').value    = row.dataset.email;
-    rolSelect.value                           = row.dataset.rol;
-    document.getElementById('estado').value   = row.dataset.activo === 'true' ? 'activo' : 'inactivo';
+    document.getElementById('editId').value = userId;
+    document.getElementById('nombre').value = row.dataset.nombre;
+    document.getElementById('email').value  = row.dataset.email;
+    rolSelect.value                         = row.dataset.rol;
+    estadoSelect.value                      = row.dataset.activo === 'true' ? 'activo' : 'inactivo';
 
-    // Proteger rol si el usuario editado es otro admin
-    if (row.dataset.isAdmin === 'true') {
-      rolSelect.disabled = true;
-      if (rolNote) rolNote.style.display = 'block';
+    const isSelf      = row.dataset.isSelf === 'true';
+    const isProtected = row.dataset.isProtected === 'true';
+
+    if (isSelf) {
+      rolSelect.disabled    = true;
+      estadoSelect.disabled = true;
+      if (rolNote) {
+        rolNote.innerHTML = '<i class="fa-solid fa-lock"></i> No puedes modificar tu propio rol ni estado.';
+        rolNote.style.display = 'block';
+      }
+    } else if (isProtected) {
+      rolSelect.disabled    = true;
+      estadoSelect.disabled = true;
+      if (rolNote) {
+        rolNote.innerHTML = '<i class="fa-solid fa-lock"></i> No puedes modificar a otro administrador.';
+        rolNote.style.display = 'block';
+      }
     }
   }
   userModal.style.display = 'flex';
@@ -121,6 +158,10 @@ function openModal(isEdit = false, userId = null) {
 function closeModal() {
   userModal.style.display = 'none';
   userForm.reset();
+  document.getElementById('rol').disabled    = false;
+  document.getElementById('estado').disabled = false;
+  const rolNote = document.getElementById('rolProtectedNote');
+  if (rolNote) rolNote.style.display = 'none';
 }
 
 window.onclick = function(e) { if (e.target === userModal) closeModal(); };
@@ -160,7 +201,7 @@ userForm.addEventListener('submit', async e => {
     });
     if (res.ok) {
       alert(isEdit ? `Usuario ${data.nombre} actualizado.` : `Usuario ${data.nombre} creado.`);
-      KoraCache.clear('usuarios'); // Invalidar caché
+      KoraCache.clear('usuarios');
       closeModal();
       loadUsuarios();
     } else {

@@ -413,10 +413,36 @@
           if (nameEl) nameEl.textContent = userName;
         }
 
-        // Si la pagina tiene elemento de bienvenida (ej. Dashboard) "Bienvenido, Diany"
-        const welcomeEl = document.querySelector(".welcome-row h1");
-        if (welcomeEl && userName) {
-          welcomeEl.textContent = "Bienvenido, " + userName;
+        // Drag and drop para imágenes
+        const dropZone = document.getElementById("imageDropZone");
+        const fileInput = document.getElementById("pImagen");
+
+        if (dropZone && fileInput) {
+          dropZone.addEventListener("click", () => fileInput.click());
+
+          dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "rgba(33, 150, 243, 0.1)";
+            dropZone.style.borderColor = "var(--accent-blue)";
+          });
+
+          dropZone.addEventListener("dragleave", () => {
+            dropZone.style.backgroundColor = "var(--light-gray)";
+            dropZone.style.borderColor = "var(--border)";
+          });
+
+          dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "var(--light-gray)";
+            dropZone.style.borderColor = "var(--border)";
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+              fileInput.files = files;
+              const event = new Event("change", { bubbles: true });
+              fileInput.dispatchEvent(event);
+            }
+          });
         }
       });
     </script>

@@ -13,6 +13,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles/dashboard.css" />
+    <!-- PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </head>
   <body>
     <header>
@@ -98,6 +101,9 @@
               <i class="fa-solid fa-cart-plus"></i> Nueva Venta
             </button>
           </a>
+          <button class="btn btn-danger" id="btnReporteEmpleado">
+            <i class="fa-solid fa-file-invoice"></i> Ver Reporte Diario
+          </button>
         </div>
       </div>
 
@@ -156,6 +162,65 @@
         </table>
       </div>
     </main>
+
+    <!-- Modal Reporte Diario Empleado -->
+    <div class="modal" id="modalReporteEmpleado">
+      <div class="modal-content" style="max-width: 800px">
+        <div class="modal-header">
+          <h2>
+            <i class="fa-solid fa-chart-line"></i> Mi Reporte Diario de Ventas
+          </h2>
+          <span class="modal-close" id="closeReporteEmpleado">&times;</span>
+        </div>
+        <div id="reporteContentEmpleado">
+          <p style="text-align: center; color: #666; padding: 2rem">
+            Cargando reporte...
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button
+            class="btn btn-primary"
+            onclick="descargarPDFEmpleado()"
+            id="btnDescargarPDFEmpleado"
+            style="background: var(--dark-blue)"
+          >
+            <i class="fa-solid fa-file-pdf"></i> Descargar PDF
+          </button>
+          <button
+            class="btn btn-danger"
+            onclick="
+              document.getElementById('modalReporteEmpleado').style.display =
+                'none'
+            "
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @media print {
+        body > *:not(#modalReporteEmpleado) {
+          display: none !important;
+        }
+        #modalReporteEmpleado {
+          display: block !important;
+          position: static !important;
+          background: white !important;
+        }
+        #modalReporteEmpleado .modal-content {
+          box-shadow: none;
+          max-width: 100%;
+        }
+        #modalReporteEmpleado .modal-actions {
+          display: none !important;
+        }
+        #modalReporteEmpleado .modal-close {
+          display: none !important;
+        }
+      }
+    </style>
 
     <script src="../shared-theme.js"></script>
     <script src="../cache.js"></script>

@@ -3,22 +3,28 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from config import supabase
 import bcrypt
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+import pytz
 
 app = FastAPI()
 
 # Executor para correr las llamadas síncronas de supabase-py en threads paralelos
-# Esto permite usar asyncio.gather() y ejecutar múltiples queries al mismo tiempo
 executor = ThreadPoolExecutor(max_workers=10)
 
 def run_query(fn):
     """Envuelve una query síncrona de Supabase para ejecutarla en un thread async."""
     loop = asyncio.get_event_loop()
     return loop.run_in_executor(executor, fn)
+
+def get_santo_domingo_time():
+    """Obtiene la hora actual en Santo Domingo"""
+    santo_domingo_tz = pytz.timezone('America/Santo_Domingo')
+    return datetime.now(santo_domingo_tz)
 
 app.add_middleware(
     CORSMiddleware,
@@ -160,35 +166,68 @@ async def get_dashboard():
 # ── REPORTE DIARIO ───────────────────────────────────────────────────
 
 @app.get("/api/reporte-diario")
-async def get_reporte_diario():
+async def get_reporte_diario(user_id: Optional[int] = None):
     try:
-        from datetime import datetime
-        today = datetime.now().strftime("%Y-%m-%d")
+        # Usar hora de Santo Domingo para la fecha del reporte
+        santo_domingo_time = get_santo_domingo_time()
+        today = santo_domingo_time.strftime("%Y-%m-%d")
 
-        res = await run_query(
-            lambda: supabase.table("sales")
-                .select("id, total, metodo_pago, created_at, nombre_comprador")
-                .gte("created_at", f"{today}T00:00:00")
-                .execute()
-        )
+        def _query():
+            q = (supabase.table("sales")
+                .select("id, total, metodo_pago, created_at, nombre_comprador, user_id")
+                .gte("created_at", f"{today}T00:00:00-04:00")  # Zona horaria de RD
+                .lte("created_at", f"{today}T23:59:59-04:00"))
+            if user_id is not None:
+                q = q.eq("user_id", user_id)
+            return q.order("created_at", desc=True).execute()
+
+        res = await run_query(_query)
         sales_today = res.data if res.data else []
 
-        # Para cada venta, buscar el primer producto vendido
+        # Para cada venta, buscar TODOS los productos vendidos
         for sale in sales_today:
             try:
                 det_res = await run_query(
                     lambda s=sale: supabase.table("sale_details")
-                        .select("product_id, products(nombre)")
+                        .select("cantidad, precio_unitario, products(nombre)")
                         .eq("sale_id", s["id"])
-                        .limit(1)
                         .execute()
                 )
-                if det_res.data and det_res.data[0].get("products"):
-                    sale["nombre_producto"] = det_res.data[0]["products"]["nombre"]
+                if det_res.data:
+                    productos = []
+                    for d in det_res.data:
+                        producto = {
+                            "nombre": d["products"]["nombre"] if d.get("products") else "Producto",
+                            "cantidad": d["cantidad"],
+                            "precio_unitario": d["precio_unitario"],
+                            "subtotal": d["cantidad"] * d["precio_unitario"]
+                        }
+                        productos.append(producto)
+                    
+                    sale["productos"] = productos
+                    # Para la tabla, mostrar el primer producto + indicador de cuántos más
+                    primer_producto = productos[0]["nombre"]
+                    cantidad_total = sum(p["cantidad"] for p in productos)
+                    
+                    if len(productos) > 1:
+                        sale["nombre_producto"] = f"{primer_producto} +{len(productos)-1} más"
+                        sale["productos_count"] = len(productos)
+                        sale["cantidad_total"] = cantidad_total
+                    else:
+                        sale["nombre_producto"] = primer_producto
+                        sale["productos_count"] = 1
+                        sale["cantidad_total"] = cantidad_total
                 else:
+                    sale["productos"] = []
                     sale["nombre_producto"] = "Venta General"
-            except Exception:
+                    sale["productos_count"] = 0
+                    sale["cantidad_total"] = 0
+            except Exception as e:
+                print(f"Error procesando detalles de venta {sale['id']}: {e}")
+                sale["productos"] = []
                 sale["nombre_producto"] = "Venta General"
+                sale["productos_count"] = 0
+                sale["cantidad_total"] = 0
 
         total_venta   = sum(s["total"] for s in sales_today)
         conteo_ventas = len(sales_today)
@@ -207,6 +246,29 @@ async def get_reporte_diario():
         }
     except Exception as e:
         print(f"Error fetching daily report: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ── VENTAS DEL MES (filtradas por vendedor) ──────────────────────────
+
+@app.get("/api/ventas-mes")
+async def get_ventas_mes(user_id: Optional[int] = None):
+    try:
+        santo_domingo_time = get_santo_domingo_time()
+        mes_inicio = santo_domingo_time.strftime("%Y-%m-01")
+
+        def _query():
+            q = (supabase.table("sales")
+                .select("total")
+                .gte("created_at", f"{mes_inicio}T00:00:00-04:00"))
+            if user_id is not None:
+                q = q.eq("user_id", user_id)
+            return q.execute()
+
+        res = await run_query(_query)
+        total_mes = sum(s["total"] for s in res.data) if res.data else 0
+        return {"total_mes": total_mes}
+    except Exception as e:
+        print(f"Error fetching ventas mes: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ── CONFIGURACIÓN ────────────────────────────────────────────────────
@@ -310,6 +372,29 @@ async def update_usuario(user_id: int, user: UserUpdate):
         print(f"Error updating usuario: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.delete("/api/usuarios/{user_id}")
+async def delete_usuario(user_id: int):
+    try:
+        # No se puede eliminar a un administrador
+        existing = await run_query(
+            lambda: supabase.table("users").select("rol, nombre").eq("id", user_id).execute()
+        )
+        if not existing.data:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        if existing.data[0]["rol"] == "admin":
+            raise HTTPException(status_code=403, detail="No se puede eliminar a un administrador")
+
+        await run_query(
+            lambda: supabase.table("users").delete().eq("id", user_id).execute()
+        )
+        return {"message": "Usuario eliminado correctamente"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting usuario: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ── PRODUCTOS CRUD ───────────────────────────────────────────────────
 
 class ProductCreate(BaseModel):
@@ -371,13 +456,21 @@ class VentaRequest(BaseModel):
 @app.post("/api/ventas")
 async def create_venta(body: VentaRequest):
     try:
+        # Usar la hora de Santo Domingo para la venta
+        santo_domingo_time = get_santo_domingo_time()
+        
         sale_data = {
             "user_id":     body.user_id,
             "total":       body.total,
-            "metodo_pago": body.metodo_pago
+            "metodo_pago": body.metodo_pago,
+            "created_at":  santo_domingo_time.isoformat()  # Guardar con hora local
         }
-        if body.nombre_comprador:
-            sale_data["nombre_comprador"] = body.nombre_comprador
+        
+        # Asegurarse de que nombre_comprador no sea null
+        if body.nombre_comprador and body.nombre_comprador.strip():
+            sale_data["nombre_comprador"] = body.nombre_comprador.strip()
+        else:
+            sale_data["nombre_comprador"] = "Consumidor Final"
 
         sale_response = await run_query(
             lambda: supabase.table("sales").insert(sale_data).execute()
@@ -401,6 +494,74 @@ async def create_venta(body: VentaRequest):
 
     except Exception as e:
         print(f"Error registrando venta: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/ventas/{sale_id}")
+async def get_venta_detalle(sale_id: int):
+    try:
+        # Obtener la venta
+        sale_res = await run_query(
+            lambda: supabase.table("sales")
+                .select("id, total, metodo_pago, created_at, nombre_comprador, user_id")
+                .eq("id", sale_id)
+                .execute()
+        )
+        
+        if not sale_res.data:
+            raise HTTPException(status_code=404, detail="Venta no encontrada")
+        
+        venta = sale_res.data[0]
+        
+        # Convertir la fecha a hora local para mostrarla correctamente
+        if venta.get("created_at"):
+            try:
+                # Parsear la fecha y asegurar que se muestre en hora local
+                fecha_utc = datetime.fromisoformat(venta["created_at"].replace('Z', '+00:00'))
+                santo_domingo_tz = pytz.timezone('America/Santo_Domingo')
+                fecha_local = fecha_utc.astimezone(santo_domingo_tz)
+                venta["created_at"] = fecha_local.isoformat()
+            except:
+                pass
+        
+        # Obtener el nombre del vendedor
+        user_res = await run_query(
+            lambda: supabase.table("users")
+                .select("nombre")
+                .eq("id", venta["user_id"])
+                .execute()
+        )
+        venta["vendedor"] = user_res.data[0]["nombre"] if user_res.data else "Desconocido"
+        
+        # Obtener los detalles de la venta con los productos
+        det_res = await run_query(
+            lambda: supabase.table("sale_details")
+                .select("cantidad, precio_unitario, products(id, nombre, categoria)")
+                .eq("sale_id", sale_id)
+                .execute()
+        )
+        
+        if det_res.data:
+            productos = []
+            for d in det_res.data:
+                producto = {
+                    "id": d["products"]["id"] if d.get("products") else None,
+                    "nombre": d["products"]["nombre"] if d.get("products") else "Producto",
+                    "categoria": d["products"]["categoria"] if d.get("products") else "General",
+                    "cantidad": d["cantidad"],
+                    "precio_unitario": d["precio_unitario"],
+                    "subtotal": d["cantidad"] * d["precio_unitario"]
+                }
+                productos.append(producto)
+            venta["productos"] = productos
+        else:
+            venta["productos"] = []
+        
+        return venta
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error fetching sale details {sale_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

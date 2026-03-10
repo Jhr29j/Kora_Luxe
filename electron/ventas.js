@@ -14,7 +14,7 @@ let products = [];
 let cart = [];
 let selectedPayment = "Ninguno seleccionado";
 
-function getProductImageHtml(src, alt) {
+function _getImgRealHtml(src, alt) {
   if (!src || src === '💎') return '💎';
   const isBase64 = src.length > 30 && !src.includes(' ');
   const hasPrefix = src.startsWith('data:image');
@@ -22,6 +22,29 @@ function getProductImageHtml(src, alt) {
   if (isUrl || hasPrefix) return `<img src="${src}" alt="${alt}" onerror="this.parentElement.innerHTML='💎'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
   if (isBase64) return `<img src="data:image/png;base64,${src}" alt="${alt}" onerror="this.parentElement.innerHTML='💎'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
   return src;
+}
+
+async function fetchProductImage(id, alt) {
+  const container = document.getElementById(`img-container-${id}`);
+  if (!container || container.dataset.loading === 'true') return;
+  container.dataset.loading = 'true';
+  try {
+    const res = await fetch(`http://localhost:5000/api/productos/${id}`);
+    if (res.ok) {
+      const p = await res.json();
+      const localP = products.find(prod => prod.id === id);
+      if (localP) localP.image = p.imagen_url;
+      container.innerHTML = _getImgRealHtml(p.imagen_url, alt);
+    }
+  } catch (e) {}
+}
+
+function getProductImageHtml(src, alt, id = null) {
+  if (id && (!src || src === '💎')) {
+    setTimeout(() => fetchProductImage(id, alt), 50);
+    return `<div id="img-container-${id}" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">💎</div>`;
+  }
+  return _getImgRealHtml(src, alt);
 }
 
 function _mapProducts(dbProducts) {
@@ -36,7 +59,8 @@ function _mapProducts(dbProducts) {
 }
 
 async function loadProducts() {
-  // Mostrar caché inmediatamente si existe
+  // Limpiar caché de productos para garantizar que las imágenes se carguen
+  KoraCache.clear('productos');
   const cached = KoraCache.peek('productos');
   if (cached) {
     products = _mapProducts(cached);
@@ -44,62 +68,33 @@ async function loadProducts() {
   }
 
   try {
-    // 1. Obtener lista ligera (sin imágenes) primero
     const dbProducts = await KoraCache.get('productos', () =>
-      fetch('http://localhost:5000/api/productos?include_images=false').then(r => {
+      fetch('http://localhost:5000/api/productos').then(r => {
         if (!r.ok) throw new Error('Error al cargar productos');
         return r.json();
       })
     );
     products = _mapProducts(dbProducts);
-    renderProducts();
 
-    // 2. Cargar imágenes en background para los que están en pantalla (opcional/futuro)
-    // Por ahora las cargaremos bajo demanda en el render
+    // Aplicar método de pago preferido del empleado
+    const metodoPref = localStorage.getItem('koraLuxe_metodoPago');
+    if (metodoPref) {
+      document.querySelectorAll('.payment-btn').forEach(btn => {
+        if (btn.dataset.method === metodoPref) {
+          btn.classList.add('active');
+          selectedPayment = metodoPref;
+          document.getElementById('selectedPayment').textContent = selectedPayment;
+        }
+      });
+    }
+
+    renderProducts();
   } catch(e) {
     console.error(e);
     if (!cached) {
-      document.getElementById('productList').innerHTML = '<p style="padding:1rem;color:#ef4444;">Error al cargar productos.</p>';
+      document.getElementById('productList').innerHTML = '<p style="padding:1rem;color:#ef4444;">Error al cargar productos. ¿Está el servidor encendido?</p>';
     }
   }
-}
-
-async function fetchProductImage(id, alt) {
-  const container = document.getElementById(`img-container-${id}`);
-  if (!container || container.dataset.loading === 'true') return;
-  container.dataset.loading = 'true';
-  
-  try {
-    const res = await fetch(`http://localhost:5000/api/productos/${id}`);
-    if (!res.ok) throw new Error();
-    const p = await res.json();
-    
-    // Actualizar el objeto local para futuras renderizaciones
-    const localP = products.find(prod => prod.id === id);
-    if (localP) localP.image = p.imagen_url;
-
-    container.innerHTML = _getProductImageRealHtml(p.imagen_url, alt);
-  } catch (e) {
-    if (container) container.innerHTML = '💎';
-  }
-}
-
-function _getProductImageRealHtml(src, alt) {
-  if (!src || src === '💎') return '💎';
-  const isBase64 = src.length > 30 && !src.includes(' ');
-  const hasPrefix = src.startsWith('data:image');
-  const isUrl = src.startsWith('http') || src.includes('/') || src.includes('.');
-  if (isUrl || hasPrefix) return `<img src="${src}" alt="${alt}" onerror="this.parentElement.innerHTML='💎'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
-  if (isBase64) return `<img src="data:image/png;base64,${src}" alt="${alt}" onerror="this.parentElement.innerHTML='💎'" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
-  return src;
-}
-
-function getProductImageHtml(src, alt, id = null) {
-  if (id && (!src || src === '💎')) {
-    setTimeout(() => fetchProductImage(id, alt), 50);
-    return `<div id="img-container-${id}" class="loading-img" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">💎</div>`;
-  }
-  return _getProductImageRealHtml(src, alt);
 }
 
 function renderProducts() {
@@ -163,6 +158,17 @@ function renderCart() {
   document.getElementById('cartCount').textContent = `${cart.length} artículo${cart.length !== 1 ? 's' : ''}`;
 }
 
+function clearCart() {
+  if (cart.length === 0) {
+    alert('El carrito ya está vacío.');
+    return;
+  }
+  if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
+    cart = [];
+    renderCart();
+  }
+}
+
 document.querySelectorAll('.payment-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
@@ -185,13 +191,10 @@ document.getElementById('finishSale').addEventListener('click', async () => {
     return;
   }
 
-  const buyerName = (document.getElementById('buyerName')?.value || '').trim();
-
   const saleData = {
-    user_id:          userId,
-    metodo_pago:      selectedPayment,
-    total:            totalAmount,
-    nombre_comprador: buyerName || null,
+    user_id:     userId,
+    metodo_pago: selectedPayment,
+    total:       totalAmount,
     items: cart.map(item => ({
       product_id:      item.id,
       cantidad:        parseInt(item.qty),
@@ -209,7 +212,8 @@ document.getElementById('finishSale').addEventListener('click', async () => {
     if (res.ok) {
       alert(`¡Venta registrada!\nTotal: RD$ ${totalAmount.toFixed(2)}\nMétodo: ${selectedPayment}`);
       // Invalidar caché dinámico para que la próxima visita al dashboard sea fresca
-      KoraCache.clear('reporte-hoy');
+      KoraCache.clear(`reporte-hoy-${userId}`);
+      KoraCache.clear(`ventas-mes-${userId}`);
       KoraCache.clear('dashboard');
       cart = [];
       selectedPayment = "Ninguno seleccionado";

@@ -74,7 +74,20 @@
 
       <div class="users-header">
         <h2>Usuarios del sistema</h2>
-        <button class="btn btn-add" onclick="openModal(false)">
+        <button
+          class="btn btn-primary"
+          onclick="openModal(false)"
+          style="
+            background: var(--accent-blue);
+            color: white;
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          "
+        >
           <i class="fa-solid fa-user-plus"></i> Agregar Nuevo Usuario
         </button>
       </div>
@@ -155,8 +168,12 @@
                 <option value="admin">Administrador</option>
                 <option value="vendedor">Vendedor</option>
               </select>
-              <small id="rolProtectedNote" style="color:#ef4444;margin-top:4px;display:none;">
-                <i class="fa-solid fa-lock"></i> No puedes cambiar el rol de otro administrador.
+              <small
+                id="rolProtectedNote"
+                style="color: #ef4444; margin-top: 4px; display: none"
+              >
+                <i class="fa-solid fa-lock"></i> No puedes cambiar el rol de
+                otro administrador.
               </small>
             </div>
 

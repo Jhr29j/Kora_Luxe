@@ -428,4 +428,4 @@ body.dark-theme .payment-btn.active { background: var(--accent-blue); border-col
 body.dark-theme .search-bar-main input { background: #0f172a; color: #f1f5f9; border-color: #334155; }
 body.dark-theme header { background: #0f172a; border-bottom: 1px solid #334155; }
 body.dark-theme #buyerName { background: #0f172a; color: #f1f5f9; border-color: #334155; }
-body.dark-theme label[for] { color: #f1f5f9; }
+body.dark-theme label[for] { color: #f1f5f9; }
